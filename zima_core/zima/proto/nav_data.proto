@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package ZimaProto.NavData;
+
+import "zima/proto/map.proto";
+import "zima/proto/probability_map.proto";
+
+message PRoomInfo {
+  string room_index = 1;
+  ZimaProto.Map.PMapCellBound room_bound = 2;
+  ZimaProto.Map.PMapCell section_base_cell = 3;
+  uint32 section_x_range = 4;
+  uint32 section_y_range = 5;
+}
+
+enum PUserBlockType {
+  kStrictBlock = 0;
+  kAvoidWaterBlock = 1;
+  kCarpetBlock = 2;
+}
+
+message PVirtualWall {
+  bool valid = 1;
+  bool enable = 2;
+  PUserBlockType type = 3;
+  string map_value = 4;
+  repeated ZimaProto.Map.PMapPoint points = 5;
+}
+
+message PBlockArea {
+  bool valid = 1;
+  bool enable = 2;
+  PUserBlockType type = 3;
+  string map_value = 4;
+  repeated ZimaProto.Map.PMapPoint points = 5;
+}
+
+message PNavData {
+  uint32 index = 1;
+  ZimaProto.Map.PMultiLayerCharGridMap2D nav_map = 2;
+  ZimaProto.Map.PSlamValueGridMap2D slam_map = 3;
+  ZimaProto.ProbabilityMap.PProbabilityIndexGridMap2D probability_map = 4;
+  string slam_map_filename = 5;
+  map<string, PRoomInfo> rooms_info = 6;
+  map<uint32, PVirtualWall> virtual_walls = 7;
+  map<uint32, PBlockArea> block_areas = 8;
+}

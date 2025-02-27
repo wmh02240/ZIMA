@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package ZimaProto.OperationData;
+
+import "zima/proto/map.proto";
+import "zima/proto/nav_data.proto";
+
+enum POperationType {
+  kNullType = 0;
+  kAllHouseCleaning = 1;
+  kSelectRoomCleaning = 2;
+  kSelectAreaCleaning = 3;
+  kAllHouseScanning = 4;
+}
+
+enum POperationResult {
+  kNullResult = 0;
+  kStopped = 1;
+  kFinishAutoCleaning = 2;
+  kFinishAutoScanHouse = 3;
+}
+
+enum PStepPointType {
+  kNormalStep = 0;
+  kPauseStep = 1;
+}
+
+message PStepPoint {
+  ZimaProto.Map.PMapPoint point = 1;
+  PStepPointType type = 2;
+}
+
+message POperationData {
+  ZimaProto.NavData.PNavData nav_data = 1;
+  double start_time = 2;
+  repeated PStepPoint step_points = 3;
+  ZimaProto.Map.PMapPoint start_point = 4;
+  double duration = 5;
+  POperationType operation_type = 6;
+  POperationResult operation_result = 7;
+}
+
+message PCleaningRecordSummary {
+  uint32 start_time = 1;
+  uint32 duration = 2;
+  double area_size = 3;
+  POperationType operation_type = 4;
+  POperationResult operation_result = 5;
+}
+
+message PCleaningRecordSummaryList {
+  repeated PCleaningRecordSummary record_summary_list = 1;
+}

@@ -1,0 +1,225 @@
+<?xml version="1.0"?>
+
+<robot name="zima_gazebo_robot_simulation" xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:include filename="$(find zima_gazebo)/robot/urdf/config.urdf.xacro"/>
+
+  <xacro:macro name="zima_gazebo_robot_sim">
+
+    <gazebo reference="chassis_link">
+      <material>Gazebo/White</material>
+      <kp value="${1*(1e26)}"/>
+      <kd value="${6.0*(1e10)}"/>
+      <sensor type="contact" name="contacts">
+        <always_on>1</always_on>
+        <update_rate>${chassis_bumper_update_rate}</update_rate>
+        <visualize>${chassis_bumper_visualization}</visualize>
+        <contact>
+          <collision>base_link_fixed_joint_lump__chassis_collision_collision</collision>
+        </contact>
+        <plugin name="chassis_bumper" filename="libgazebo_ros_bumper.so">
+          <bumperTopicName>${topic_prefix}/${chassis_bumper_topic}</bumperTopicName>
+          <frameName>world</frameName>
+        </plugin>
+      </sensor>
+    </gazebo>
+
+    <gazebo reference="wheel_left_link">
+      <material>Gazebo/Black</material>
+      <mu>1.0</mu>
+      <mu1>1.0</mu1>
+      <mu2>1.0</mu2>
+      <kp>1e20</kp>
+      <kd>1e20</kd>
+      <minDepth>0</minDepth>
+      <maxVel>100.0</maxVel>
+      <dynamics>
+        <damping>0.0</damping>
+        <friction>0.0</friction>
+      </dynamics>
+    </gazebo>
+    <transmission name="wheel_left_transmission" type="SimpleTransmission">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="wheel_left_joint">
+        <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="wheel_left_drive_motor">
+        <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+        <mechanicalReduction>10.0</mechanicalReduction>
+        <motorTorqueConstant>1</motorTorqueConstant>
+      </actuator>
+    </transmission>
+
+
+    <gazebo reference="wheel_right_link">
+      <material>Gazebo/Black</material>
+      <mu>1.0</mu>
+      <mu1>1.0</mu1>
+      <mu2>1.0</mu2>
+      <kp>1e20</kp>
+      <kd>1e20</kd>
+      <minDepth>0</minDepth>
+      <maxVel>100.0</maxVel>
+      <dynamics>
+        <damping>0.0</damping>
+        <friction>0.0</friction>
+      </dynamics>
+    </gazebo>
+    <transmission name="wheel_right_transmission" type="SimpleTransmission">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="wheel_right_joint">
+        <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="wheel_right_drive_motor">
+        <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+        <mechanicalReduction>10.0</mechanicalReduction>
+        <motorTorqueConstant>1</motorTorqueConstant>
+      </actuator>
+    </transmission>
+
+    <gazebo reference="caster_front_link">
+      <mu>0.0</mu>
+      <mu1>0.0</mu1>
+      <mu2>0.0</mu2>
+      <kp>1e18</kp>
+      <kd>1e18</kd>
+      <fdir1>1.0</fdir1>
+      <dynamics>
+          <damping>0.71</damping>
+          <friction>0.0</friction>
+      </dynamics>
+    </gazebo>
+
+    <gazebo reference="caster_back_link">
+      <mu>0.0</mu>
+      <mu1>0.0</mu1>
+      <mu2>0.0</mu2>
+      <kp>1e18</kp>
+      <kd>1e18</kd>
+      <fdir1>1.0</fdir1>
+      <dynamics>
+          <damping>0.71</damping>
+          <friction>0.0</friction>
+      </dynamics>
+    </gazebo>
+
+    <gazebo reference="lidar_link">
+      <material>Gazebo/Blue</material>
+      <sensor type="ray" name="lidar">
+        <always_on>true</always_on>
+        <update_rate>${lidar_rate}</update_rate>
+        <visualize>${lidar_visualization}</visualize>
+        <ray>
+          <scan>
+            <horizontal>
+              <samples>${lidar_horizontal_samples}</samples>
+              <resolution>${lidar_horizontal_resolution}</resolution>
+              <min_angle>${lidar_horizontal_min_radian}</min_angle>
+              <max_angle>${lidar_horizontal_max_radian}</max_angle>
+            </horizontal>
+          </scan>
+          <range>
+            <min>${lidar_range_min}</min>
+            <max>${lidar_range_max}</max>
+            <resolution>${lidar_range_resolution}</resolution>
+          </range>
+        </ray>
+        <plugin name="lidar" filename="libgazebo_ros_laser.so">
+          <topicName>${topic_prefix}/${lidar_topic}</topicName>
+          <frameName>lidar</frameName>
+        </plugin>
+      </sensor>
+      <sensor type="contact" name="contacts">
+        <always_on>1</always_on>
+        <update_rate>${lidar_bumper_update_rate}</update_rate>
+        <visualize>${lidar_bumper_visualization}</visualize>
+        <contact>
+          <collision>base_link_fixed_joint_lump__lidar_link_collision_3</collision>
+        </contact>
+        <plugin name="lidar_bumper" filename="libgazebo_ros_bumper.so">
+          <bumperTopicName>${topic_prefix}/${lidar_bumper_topic}</bumperTopicName>
+          <frameName>world</frameName>
+        </plugin>
+      </sensor>
+    </gazebo>
+
+    <gazebo reference="left_wall_sensor_link">
+      <material>Gazebo/Blue</material>
+      <sensor type="ray" name="left_wall_sensor">
+        <always_on>true</always_on>
+        <update_rate>${left_wall_sensor_rate}</update_rate>
+        <visualize>${left_wall_sensor_visualization}</visualize>
+        <ray>
+          <scan>
+            <horizontal>
+              <samples>${left_wall_sensor_horizontal_samples}</samples>
+              <resolution>${left_wall_sensor_horizontal_resolution}</resolution>
+              <min_angle>${left_wall_sensor_horizontal_min_radian}</min_angle>
+              <max_angle>${left_wall_sensor_horizontal_max_radian}</max_angle>
+            </horizontal>
+          </scan>
+          <range>
+            <min>${left_wall_sensor_range_min}</min>
+            <max>${left_wall_sensor_range_max}</max>
+            <resolution>${left_wall_sensor_range_resolution}</resolution>
+          </range>
+        </ray>
+        <plugin name="left_wall_sensor" filename="libgazebo_ros_laser.so">
+          <topicName>${topic_prefix}/${left_wall_sensor_topic}</topicName>
+          <frameName>left_wall_sensor</frameName>
+        </plugin>
+      </sensor>
+    </gazebo>
+
+    <gazebo reference="right_wall_sensor_link">
+      <material>Gazebo/Blue</material>
+      <sensor type="ray" name="right_wall_sensor">
+        <always_on>true</always_on>
+        <update_rate>${right_wall_sensor_rate}</update_rate>
+        <visualize>${right_wall_sensor_visualization}</visualize>
+        <ray>
+          <scan>
+            <horizontal>
+              <samples>${right_wall_sensor_horizontal_samples}</samples>
+              <resolution>${right_wall_sensor_horizontal_resolution}</resolution>
+              <min_angle>${right_wall_sensor_horizontal_min_radian}</min_angle>
+              <max_angle>${right_wall_sensor_horizontal_max_radian}</max_angle>
+            </horizontal>
+          </scan>
+          <range>
+            <min>${right_wall_sensor_range_min}</min>
+            <max>${right_wall_sensor_range_max}</max>
+            <resolution>${right_wall_sensor_range_resolution}</resolution>
+          </range>
+        </ray>
+        <plugin name="right_wall_sensor" filename="libgazebo_ros_laser.so">
+          <topicName>${topic_prefix}/${right_wall_sensor_topic}</topicName>
+          <frameName>right_wall_sensor</frameName>
+        </plugin>
+      </sensor>
+    </gazebo>
+
+  </xacro:macro>
+
+  <xacro:macro name="zima_ros_robot_controller" >
+      <gazebo>
+          <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+              <legacyModeNS>true</legacyModeNS>
+              <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
+          </plugin>
+      </gazebo>
+
+      <gazebo>
+          <plugin name="p3d_base_controller" filename="libgazebo_ros_p3d.so">
+              <alwaysOn>true</alwaysOn>
+              <updateRate>${chassis_odom_rate}</updateRate>
+              <bodyName>chassis_link</bodyName>
+              <topicName>${topic_prefix}/${chassis_odom_topic}</topicName>
+              <gaussianNoise>0</gaussianNoise>
+              <frameName>world</frameName>
+              <xyzOffsets>0 0 0</xyzOffsets>
+              <rpyOffsets>0 0 0</rpyOffsets>
+          </plugin>
+      </gazebo>
+  </xacro:macro>
+
+</robot>

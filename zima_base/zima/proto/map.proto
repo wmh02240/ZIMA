@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+package ZimaProto.Map;
+
+message PMapCell {
+  int32 x = 1;
+  int32 y = 2;
+}
+
+message PMapCellBound {
+  int32 x_min = 1;
+  int32 x_max = 2;
+  int32 y_min = 3;
+  int32 y_max = 4;
+}
+
+message PMapPoint {
+  float x = 1;
+  float y = 2;
+  float degree = 3;
+}
+
+message PMapPointBound {
+  float x_min = 1;
+  float x_max = 2;
+  float y_min = 3;
+  float y_max = 4;
+}
+
+//   Coordinate in msg.
+//            y
+//      -     ^
+//      ^     |012345...
+//      |     |
+//            |
+//   y_range  |
+//            |
+//      |     |
+//      v     |
+//      -     |----------->x
+//
+//            |<- x_range ->|
+//
+//   index = (y_range - y) * x_range + x
+//
+
+message PDynamicMap2DInfo {
+  string name = 1;
+  PMapCell x_min_y_max_cell = 2;
+  float resolution = 3;
+  int32 x_range = 4;
+  int32 y_range = 5;
+  int32 x_reserve_range = 6;
+  int32 y_reserve_range = 7;
+}
+
+message PCharGridMap2D {
+  PDynamicMap2DInfo map_info = 1;
+  string data = 2;
+}
+
+message PSlamValueGridMap2D {
+  PDynamicMap2DInfo map_info = 1;
+  repeated int32 data = 2;
+}
+
+message PMultiLayerCharGridMap2D {
+  map<string, PCharGridMap2D> map_dict = 1;
+}

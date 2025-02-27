@@ -1,0 +1,30 @@
+<?xml version="1.0" ?>
+
+<robot name="xacro_properties" xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:property name="M_PI" value="3.1415926535897931" /> 
+  <material name="dark_grey">
+    <color rgba="0.3 0.3 0.3 1"/>
+  </material>
+  <material name="light_grey">
+    <color rgba="0.6 0.6 0.6 1"/>
+  </material>
+
+  <xacro:macro name="cylinder_inertia" params="mass radius height">
+    <inertia ixx="${(3*radius*radius + height*height)*mass/12}"
+             ixy="0.0"
+             ixz="0.0"
+             iyy="${(3*radius*radius + height*height)*mass/12}"
+             iyz="0.0"
+             izz="${radius*radius*mass/2}" />
+  </xacro:macro>
+
+  <xacro:macro name="sphere_inertia" params="mass radius">
+    <inertia ixx="${2*mass*radius*radius/5}"
+             ixy="0.0"
+             ixz="0.0"
+             iyy="${2*mass*radius*radius/5}"
+             iyz="0.0"
+             izz="${2*mass*radius*radius/5}" />
+  </xacro:macro>
+
+</robot>

@@ -1,0 +1,204 @@
+{
+  "zima global config": {
+    "config version": "0.1",
+    "config description": "Gazebo config",
+    "nav map config": {
+      "resolution description": "1 / 5 of robot diameter",
+      "resolution": 0.07
+    },
+    "slam value grid map config": {
+      "default value": -1,
+      "min space value": 0,
+      "medium value": 50,
+      "max obstacle value description": "For cartographer it should be 75, for simple slam it should be 100.",
+      "max obstacle value": 100
+    },
+    "room info config": {
+      "max section width": 4
+    },
+    "cleaning record config": {
+      "cleaning record path": "/home/zima/zima_clean_record/",
+      "cleaning record count limit": 10
+    },
+    "local nav data config": {
+      "local nav data path": "/home/zima/zima_local_nav_data/",
+      "local nav data count limit": 3
+    },
+    "chassis config": {
+      "track length": 0.24,
+      "radius": 0.175,
+      "encircle obstacle on left": false,
+      "device config": {
+        "left wheel": {
+          "tf to base": [
+            0,
+            0.12
+          ],
+          "min speed": -0.3,
+          "max speed": 0.3
+        },
+        "right wheel": {
+          "tf to base": [
+            0,
+            -0.12
+          ],
+          "min speed": -0.3,
+          "max speed": 0.3
+        },
+        "left bumper": {
+          "cover range min degree":-30,
+          "cover range max degree":90,
+          "install degree": 30
+        },
+        "right bumper": {
+          "cover range min degree":-90,
+          "cover range max degree":30,
+          "install degree": -30
+        },
+        "left wall sensor": {
+          "install degree": 80,
+          "mark distance on y" : 0.03
+        },
+        "right wall sensor": {
+          "install degree": -80,
+          "mark distance on y" : 0.03
+        },
+        "gyro": {
+          "tf to base": [
+            0,
+            0,
+            0
+          ]
+        },
+        "lidar": {
+          "tf to base": [
+            0.05,
+            0,
+            0
+          ],
+          "max range": 8,
+          "min range": 0.1
+        },
+        "battery": {
+          "tf to base": [
+            0,
+            0,
+            0
+          ],
+          "fully charged state voltage": 0,
+          "low state voltage": 0,
+          "dangerous state voltage": 0,
+          "design capacity": 0
+        }
+      }
+    },
+    "pose interpolator config": {
+      "buffer time limit": 3,
+      "buffer count limit": 150
+    },
+    "point cloud matcher config": {
+      "translation delta cost weight": 0,
+      "rotation degree delta cost weight": 0
+    },
+    "simple slam config": {
+      "raw matcher config": {
+        "translation delta cost weight": 1,
+        "rotation degree delta cost weight": 0.1
+      },
+      "precise matcher config": {
+        "translation delta cost weight": 2,
+        "rotation degree delta cost weight": 5
+      },
+      "probability index grid map config": {
+        "hit probability on obstacle": 0.65,
+        "miss probability on obstacle": 0.45,
+        "max probability for obstacle in cell": 0.9,
+        "min probability for obstacle in cell": 0.1,
+        "probability count": 10000
+      },
+      "odom data list max size": 100,
+      "odom data list max time interval": 2,
+      "point cloud list max size": 2,
+      "point cloud list max time interval": 2,
+      "odom sample ratio": 0.5,
+      "point cloud sample ratio": 0.5,
+      "pose filter max linear distance": 0.3,
+      "pose filter max angle degree": 20,
+      "pose filter max time interval": 9999,
+      "slam linear range": 20,
+      "resolution description": "1 / 5 of robot diameter",
+      "slam resolution": 0.07,
+      "min required match score": 0.2,
+      "max required match score": 0.51,
+      "min search linear range": 0.15,
+      "max search linear range": 0.3,
+      "min search degree range": 3,
+      "max search degree range": 15,
+      "raw search linear step": 0.07,
+      "raw search degree step description": "atan(slam resolution / 2 / lidar max distance)",
+      "raw search degree step": 1,
+      "precise search linear range": 0.07,
+      "precise search degree range": 0.5,
+      "precise search linear step": 0.01,
+      "precise search degree step": 0.5,
+      "motion detector time interval": 0.1,
+      "motion detector degree limit": 4
+    },
+    "trace path movement config": {
+      "retreat distance": 0.02,
+      "retreat motion config": {
+        "target speed": -0.1,
+        "min speed": -0.05
+      },
+      "rotate motion config": {
+        "target speed": 0.2,
+        "accuracy angle": 1,
+        "min speed": 0.02
+      },
+      "trace path motion config": {
+        "target speed": 0.3,
+        "stop for lidar obs distance": 0.03,
+        "stop for lidar compensate": 0
+      }
+    },
+    "encircle obstacle movement config": {
+      "retreat distance": 0.005,
+      "retreat motion config": {
+        "target speed": -0.2,
+        "min speed": -0.05
+      },
+      "rotate lidar cal degree compensate": 8,
+      "rotate motion config": {
+        "target speed": 0.2,
+        "accuracy angle": 1,
+        "min speed": 0.02
+      },
+      "move forward distance": 0.02,
+      "move forward time": 0.5,
+      "move forward motion config": {
+        "target speed": 0.15
+      },
+      "encircle obstacle motion config": {
+        "target speed": 0.15,
+        "target obstacle distance": 0.025,
+        "turn circle radius": 0.07
+      }
+    },
+    "encircle map edge movement config": {
+      "retreat distance": 0.005,
+      "retreat motion config": {
+        "target speed": -0.2,
+        "min speed": -0.05
+      },
+      "rotate motion config": {
+        "target speed": 0.2,
+        "accuracy angle": 1,
+        "min speed": 0.02
+      },
+      "encircle map edge motion config": {
+        "target speed": 0.2,
+        "target map edge distance": 0.01
+      }
+    }
+  }
+}

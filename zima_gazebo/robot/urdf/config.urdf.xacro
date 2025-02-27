@@ -1,0 +1,85 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <xacro:property name="topic_prefix"  value="/zima_gazebo_robot"/>
+
+  <xacro:property name="sim_time_multi"  value="1"/>
+
+  <xacro:property name="chassis_radius"  value="0.175"/>
+  <xacro:property name="chassis_height"  value="0.06"/>
+  <xacro:property name="chassis_mass"  value="9"/>
+  <xacro:property name="chassis_track_length"  value="0.24"/>
+  <xacro:property name="chassis_button_distance_to_ground"  value="0.015"/>
+  <xacro:property name="chassis_bumper_update_rate"  value="50"/>
+  <xacro:property name="chassis_bumper_visualization"  value="1"/>
+  <xacro:property name="chassis_bumper_topic"  value="chassis_bumper"/>
+  <xacro:property name="chassis_odom_topic"  value="gazebo_ground_truth_odom"/>
+  <xacro:property name="chassis_odom_rate"  value="${sim_time_multi*50}"/>
+
+  <xacro:property name="wheel_radius"  value="0.032"/>
+  <xacro:property name="wheel_width"  value="0.02"/>
+  <xacro:property name="wheel_roll"  value="1.5707"/>
+  <xacro:property name="wheel_pitch"  value="0.0"/>
+  <xacro:property name="wheel_yaw"  value="3.1415"/>
+  <xacro:property name="wheel_mass"  value="4.85"/>
+
+  <xacro:property name="caster_radius"  value="${chassis_button_distance_to_ground}"/>
+  <xacro:property name="caster_mass"  value="10"/>
+  <xacro:property name="caster_x"  value="${chassis_track_length/2}"/>
+
+  <xacro:property name="lidar_radius"  value="0.03"/>
+  <xacro:property name="lidar_height"  value="0.03"/>
+  <xacro:property name="lidar_mass"  value="0.135"/>
+  <xacro:property name="lidar_x"  value="0.05"/>
+  <xacro:property name="lidar_y"  value="0"/>
+  <xacro:property name="lidar_z"  value="${chassis_height/2+0.01}"/>
+  <xacro:property name="lidar_yaw"  value="0"/>
+  <xacro:property name="lidar_rate"  value="${sim_time_multi*10}"/>
+  <xacro:property name="lidar_visualization"  value="0"/>
+  <xacro:property name="lidar_samples"  value="4000"/>
+  <xacro:property name="lidar_horizontal_samples"  value="${lidar_samples/lidar_rate}"/>
+  <xacro:property name="lidar_horizontal_resolution"  value="1"/>
+  <xacro:property name="lidar_horizontal_min_radian"  value="${-M_PI}"/>
+  <xacro:property name="lidar_horizontal_max_radian"  value="${M_PI}"/>
+  <xacro:property name="lidar_range_min"  value="${chassis_radius-lidar_x}"/>
+  <xacro:property name="lidar_range_max"  value="8"/>
+  <xacro:property name="lidar_range_resolution"  value="0.01"/>
+  <xacro:property name="lidar_topic"  value="lidar_scan"/>
+  <xacro:property name="lidar_bumper_topic"  value="lidar_bumper"/>
+  <xacro:property name="lidar_bumper_visualization"  value="0"/>
+  <xacro:property name="lidar_bumper_update_rate"  value="50"/>
+
+  <xacro:property name="left_wall_sensor_x"  value="${(chassis_radius+0.001)*0.17365}"/>
+  <xacro:property name="left_wall_sensor_y"  value="${(chassis_radius+0.001)*-0.98481}"/>
+  <xacro:property name="left_wall_sensor_z"  value="0"/>
+  <xacro:property name="left_wall_sensor_yaw"  value="-1.3963"/>
+  <xacro:property name="left_wall_sensor_rate"  value="${sim_time_multi*50}"/>
+  <xacro:property name="left_wall_sensor_visualization"  value="0"/>
+  <xacro:property name="left_wall_sensor_samples"  value="1"/>
+  <xacro:property name="left_wall_sensor_horizontal_samples"  value="${left_wall_sensor_samples}"/>
+  <xacro:property name="left_wall_sensor_horizontal_resolution"  value="1"/>
+  <xacro:property name="left_wall_sensor_horizontal_min_radian"  value="0"/>
+  <xacro:property name="left_wall_sensor_horizontal_max_radian"  value="0"/>
+  <xacro:property name="left_wall_sensor_range_min"  value="0.0005"/>
+  <xacro:property name="left_wall_sensor_range_max"  value="0.32"/>
+  <xacro:property name="left_wall_sensor_range_resolution"  value="0.001"/>
+  <xacro:property name="left_wall_sensor_topic"  value="left_wall_sensor_scan"/>
+
+  <xacro:property name="right_wall_sensor_x"  value="${(chassis_radius+0.001)*0.17365}"/>
+  <xacro:property name="right_wall_sensor_y"  value="${(chassis_radius+0.001)*0.98481}"/>
+  <xacro:property name="right_wall_sensor_z"  value="0"/>
+  <xacro:property name="right_wall_sensor_yaw"  value="1.3963"/>
+  <xacro:property name="right_wall_sensor_rate"  value="${sim_time_multi*50}"/>
+  <xacro:property name="right_wall_sensor_visualization"  value="0"/>
+  <xacro:property name="right_wall_sensor_samples"  value="1"/>
+  <xacro:property name="right_wall_sensor_horizontal_samples"  value="${left_wall_sensor_samples}"/>
+  <xacro:property name="right_wall_sensor_horizontal_resolution"  value="1"/>
+  <xacro:property name="right_wall_sensor_horizontal_min_radian"  value="0"/>
+  <xacro:property name="right_wall_sensor_horizontal_max_radian"  value="0"/>
+  <xacro:property name="right_wall_sensor_range_min"  value="0.0005"/>
+  <xacro:property name="right_wall_sensor_range_max"  value="0.32"/>
+  <xacro:property name="right_wall_sensor_range_resolution"  value="0.001"/>
+  <xacro:property name="right_wall_sensor_topic"  value="right_wall_sensor_scan"/>
+
+
+</robot>

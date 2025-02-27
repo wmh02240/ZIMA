@@ -1,0 +1,215 @@
+<?xml version="1.0" ?>
+<!-- 
+  This is not a standalone urdf for zima_gazebo_robot. It simply defines the 'zima_gazebo_robot' tag that can
+  be incorporated by other urdf files (e.g. turtlebot).
+  
+  See zima_standalone.urdf.xacro for a standalone urdf to be tested with
+      zima_gazebo/launch/view_model.launch
+ -->
+<robot name="zima_gazebo_robot" xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:include filename="$(find zima_gazebo)/robot/urdf/config.urdf.xacro"/>
+  <xacro:include filename="$(find zima_gazebo)/robot/urdf/common_properties.urdf.xacro"/>
+  <xacro:include filename="$(find zima_gazebo)/robot/urdf/zima_gazebo.urdf.xacro"/>
+  
+  <!-- zima_gazebo_robot --> 
+  <xacro:macro name="zima_gazebo_robot">   
+    <link name="base_link"/>
+
+    <!-- chassis --> 
+    <link name="chassis_link">
+      <visual>
+        <geometry>
+          <cylinder length="${chassis_height}" radius="${chassis_radius}" />
+        </geometry>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <material name="dark_grey"/>
+      </visual>
+      <collision name="chassis_collision">
+        <geometry>
+          <cylinder length="${chassis_height}" radius="${chassis_radius}" />
+        </geometry>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+      </collision>
+      <inertial>
+        <mass value="${chassis_mass}"/>
+        <origin xyz="0 0 0"/>
+        <xacro:cylinder_inertia mass="${chassis_mass}" height="${chassis_height}" radius="${chassis_radius}"/>
+      </inertial>
+    </link>
+    <joint name="chassis_base_link_joint" type="fixed">
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <parent link="base_link" />
+        <child link="chassis_link" />
+    </joint>
+
+    <!-- left wheel --> 
+    <link name="wheel_left_link">
+      <visual>
+        <geometry>
+          <cylinder length="${wheel_width}" radius="${wheel_radius}" />
+        </geometry>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <material name="light_grey"/>
+      </visual>
+      <collision>
+        <geometry>
+          <cylinder length="${wheel_width}" radius="${wheel_radius}" />
+        </geometry>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+      </collision>
+      <inertial>
+        <mass value="${wheel_mass}" />
+        <origin xyz="0 0 0" />
+        <xacro:cylinder_inertia mass="${wheel_mass}" height="${wheel_width}" radius="${wheel_radius}"/>
+      </inertial>
+    </link>
+    <joint name="wheel_left_joint" type="continuous">
+      <parent link="chassis_link"/>
+      <child link="wheel_left_link"/>
+      <origin xyz="0.00 ${chassis_track_length/2} ${-(chassis_button_distance_to_ground+chassis_height/2)+wheel_radius}" rpy="${wheel_roll} ${wheel_pitch} ${wheel_yaw}"/>
+      <axis xyz="0 0 1"/>
+    </joint>
+
+    <!-- right wheel --> 
+    <link name="wheel_right_link">
+      <visual>
+        <geometry>
+          <cylinder length="${wheel_width}" radius="${wheel_radius}" />
+        </geometry>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <material name="light_grey"/>
+      </visual>
+      <collision>
+        <geometry>
+          <cylinder length="${wheel_width}" radius="${wheel_radius}" />
+        </geometry>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+      </collision>
+      <inertial>
+        <mass value="${wheel_mass}" />
+        <origin xyz="0 0 0" />
+        <xacro:cylinder_inertia mass="${wheel_mass}" height="${wheel_width}" radius="${wheel_radius}"/>
+      </inertial>
+    </link>
+    <joint name="wheel_right_joint" type="continuous">
+      <parent link="chassis_link"/>
+      <child link="wheel_right_link"/>
+      <origin xyz="0.00 ${-chassis_track_length/2} ${-(chassis_button_distance_to_ground+chassis_height/2)+wheel_radius}" rpy="${wheel_roll} ${wheel_pitch} ${wheel_yaw}"/>
+      <axis xyz="0 0 1"/>
+    </joint>
+
+    <!-- caster front wheel --> 
+    <link name="caster_front_link">
+      <visual>
+        <geometry>
+          <sphere radius="${caster_radius}"/>
+        </geometry>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <material name="light_grey"/>
+      </visual>
+      <collision>
+        <geometry>
+          <sphere radius="${caster_radius}"/>
+        </geometry>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+      </collision>
+      <inertial>
+        <mass value="${caster_mass}" />
+        <origin xyz="0 0 0" />
+        <inertia ixx="${2*caster_mass*caster_radius*caster_radius/5}"
+                 ixy="0.0"
+                 ixz="0.0"
+                 iyy="${2*caster_mass*caster_radius*caster_radius/5}"
+                 iyz="0.0"
+                 izz="${2*caster_mass*caster_radius*caster_radius/5}" />
+      </inertial>
+    </link>
+    <joint name="caster_front_joint" type="fixed">
+      <parent link="chassis_link"/>
+      <child link="caster_front_link"/>
+      <origin xyz="${caster_x} 0 ${-chassis_height/2}" rpy="0 0 0"/>
+    </joint>
+
+    <!-- caster back wheel --> 
+    <link name="caster_back_link">
+      <!-- <visual>
+        <geometry>
+          <sphere radius="${caster_radius}"/>
+        </geometry>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <material name="light_grey"/>
+      </visual> -->
+      <collision>
+        <geometry>
+          <sphere radius="${caster_radius}"/>
+        </geometry>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+      </collision>
+      <inertial>
+        <mass value="${caster_mass}" />
+        <origin xyz="0 0 0" />
+        <inertia ixx="${2*caster_mass*caster_radius*caster_radius/5}"
+                 ixy="0.0"
+                 ixz="0.0"
+                 iyy="${2*caster_mass*caster_radius*caster_radius/5}"
+                 iyz="0.0"
+                 izz="${2*caster_mass*caster_radius*caster_radius/5}" />
+      </inertial>
+    </link>
+    <joint name="caster_back_joint" type="fixed">
+      <parent link="chassis_link"/>
+      <child link="caster_back_link"/>
+      <origin xyz="${-caster_x} 0 ${-chassis_height/2}" rpy="0 0 0"/>
+    </joint>
+
+    <!-- lidar --> 
+    <link name="lidar_link">
+      <visual>
+        <geometry>
+          <cylinder length="${lidar_height}" radius="${lidar_radius}" />
+        </geometry>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <material name="light_grey"/>
+      </visual>
+      <collision>
+        <geometry>
+          <cylinder length="${lidar_height}" radius="${lidar_radius}" />
+        </geometry>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+      </collision>
+      <inertial>
+        <mass value="${lidar_mass}" />
+        <origin xyz="0 0 0" />
+        <xacro:cylinder_inertia mass="${lidar_mass}" height="${lidar_height}" radius="${lidar_radius}"/>
+      </inertial>
+    </link>
+    <joint name="lidar_joint" type="fixed">
+      <origin xyz="${lidar_x} ${lidar_y} ${lidar_z}" rpy="0 0 ${lidar_yaw}" />
+      <parent link="chassis_link"/>
+      <child link="lidar_link" />
+    </joint>
+
+    <!-- left wall sensor --> 
+    <link name="left_wall_sensor_link"/>
+    <joint name="left_wall_sensor_joint" type="fixed">
+      <origin xyz="${left_wall_sensor_x} ${left_wall_sensor_y} ${left_wall_sensor_z}" rpy="0 0 ${left_wall_sensor_yaw}" />
+      <parent link="chassis_link"/>
+      <child link="left_wall_sensor_link" />
+    </joint>
+
+    <!-- right wall sensor --> 
+    <link name="right_wall_sensor_link"/>
+    <joint name="right_wall_sensor_joint" type="fixed">
+      <origin xyz="${right_wall_sensor_x} ${right_wall_sensor_y} ${right_wall_sensor_z}" rpy="0 0 ${right_wall_sensor_yaw}" />
+      <parent link="chassis_link"/>
+      <child link="right_wall_sensor_link" />
+    </joint>
+
+    <xacro:zima_gazebo_robot_sim/>
+    <xacro:zima_ros_robot_controller/>
+
+  </xacro:macro>
+
+  <xacro:zima_gazebo_robot/>
+
+</robot>

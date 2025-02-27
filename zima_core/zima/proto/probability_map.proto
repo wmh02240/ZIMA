@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package ZimaProto.ProbabilityMap;
+
+import "zima/proto/map.proto";
+
+message PProbabilityIndexGridMap2D {
+  ZimaProto.Map.PDynamicMap2DInfo map_info = 1;
+  float hit_probability_on_obstacle = 2;
+  float miss_probability_on_obstacle = 3;
+  float max_probability_for_obstacle_in_cell = 4;
+  float min_probability_for_obstacle_in_cell = 5;
+  uint32 probability_count = 6;
+  repeated uint32 data = 7;
+}

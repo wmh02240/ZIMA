@@ -1,0 +1,14 @@
+map_info {
+  name: "sensor map"
+  x_min_y_max_cell: {
+    x: -10
+    y: 10
+  }
+  resolution: 0.05
+  x_range: 21
+  y_range: 3
+}
+
+data: "....................."
+      "....B.........B......"
+      "........W............"
