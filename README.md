@@ -11,6 +11,8 @@ Zima SDK是一个力求轻量模块化可移植的2D激光SLAM导航家用清洁
 SDK包含基础数据格式、控制算法、规划算法、SLAM算法，低依赖（目前只需glog/gflags/protobuf）。为便于调试，也加入了ros封装和简单gazebo仿真。
 目前Gazebo仿真Demo部署方式为docker。(Demo已内置里程计的累计误差模拟，和雷达的测量误差模拟，但雷达的运动畸变模拟并未加入)
 
+![架构图](./Doc/ZimaSDK框架.png)
+
 ## Installation
 
 （示例宿主机为Ubuntu22.04系统，理论上可兼容其他Linux发行版）：
@@ -75,6 +77,9 @@ SDK包含基础数据格式、控制算法、规划算法、SLAM算法，低依�
     容器中启动仿真环境方法(在独立终端中运行)：
 
     ```bash
+    # 运行仿真之前，需要把ZIMA的Gazebo模型软连接到Gazebo模型库中，否则会出现启动Gazebo卡死，或家具无法显示。具体方法：
+    # cd /home/zima/.gazebo/models
+    # ln -s /your/path/to/zima_gazebo/worlds/models/* .
     roslaunch zima_gazebo gazebo.launch
     ```
 
@@ -94,6 +99,9 @@ SDK包含基础数据格式、控制算法、规划算法、SLAM算法，低依�
 
     建议仿真环境与Demo与Rviz从不同的终端窗口进入docker后启动，因为Demo程序使用键盘标准输入为测试命令输入，用一个launch文件一起启动的话键盘输入会失效。
     键盘控制详细请看Demo程序输出提示，若提示日志已被刷走，可按esc键或任意非功能键来输出提示。
+
+    ![仿真图示](Doc/ZimaDemo1.jpg)
+    ![轨迹图示](Doc/ZimaDemo2.jpg)
 
 ## 适配硬件
 
