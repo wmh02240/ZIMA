@@ -1,0 +1,60 @@
+map_dict {
+  key: "Foot step map"
+  value {
+    map_info {
+      name: "Foot step map"
+      x_min_y_max_cell {
+        y: 1
+      }
+      resolution: 0.065
+      x_range: 5
+      y_range: 2
+    }
+    data: "++++++++++"
+  }
+}
+map_dict {
+  key: "Print map"
+  value {
+    map_info {
+      name: "Print map"
+      x_min_y_max_cell {
+        x: 2147483647
+        y: -2147483648
+      }
+      resolution: 0.065
+      x_range: 2
+      y_range: 2
+    }
+  }
+}
+map_dict {
+  key: "Room map"
+  value {
+    map_info {
+      name: "Room map"
+      x_min_y_max_cell {
+        x: 2147483647
+        y: -2147483648
+      }
+      resolution: 0.065
+      x_range: 2
+      y_range: 2
+    }
+  }
+}
+map_dict {
+  key: "Sensor map"
+  value {
+    map_info {
+      name: "Sensor map"
+      x_min_y_max_cell {
+        x: 2147483647
+        y: -2147483648
+      }
+      resolution: 0.065
+      x_range: 2
+      y_range: 2
+    }
+  }
+}

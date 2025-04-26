@@ -1,0 +1,27 @@
+<launch>
+
+    <arg name="robot_namespace" default="zima_gazebo_robot" />
+
+    <arg name="x" default="0.0" />
+    <arg name="y" default="0.0" />
+    <arg name="yaw" default="0.0" />
+
+    <!-- Load robot controller-->
+    <rosparam command="load" file="$(find zima_gazebo)/robot/controller/controller.yaml" />
+
+    <node pkg="controller_manager" type="spawner" name="zima_gazebo_robot_controller_spawner" args="zima_gazebo_robot_controller" output="screen"/>
+
+    <!-- Load robot description -->
+    <arg name="urdf_file" default="$(find xacro)/xacro '$(find zima_gazebo)/robot/urdf/zima_gazebo_robot.urdf.xacro'" />
+    <param name="robot_description" command="$(arg urdf_file)" />
+
+    <node name="spawn_robot" pkg="gazebo_ros" type="spawn_model" args="-x $(arg x)
+                  -y $(arg y)
+                  -z 0.1
+                  -Y $(arg yaw)
+                  -unpause
+                  -urdf
+                  -param robot_description
+                  -model $(arg robot_namespace)" />
+
+</launch>

@@ -2,3 +2,6 @@
 build
 *.pb.h
 *.pb.cc
+ros_workspace/build/*
+ros_workspace/devel/*
+ros_workspace/src/zima_gazebo/worlds/*

@@ -1,8 +1,0 @@
-<launch>
-  <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(find zima_ros)/zima.rviz"/> -->
-  <node name="zima_test" pkg="zima_ros"
-      type="zima_mode_gazebo_test" args=""
-      output="screen">
-  </node>
-
-</launch>

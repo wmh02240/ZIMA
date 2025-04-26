@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package>
+  <name>zima_gazebo</name>
+  <version>0.0.0</version>
+  <description>Zima gazebo relative package</description>
+
+  <maintainer email="bitsoullab@gmail.com">Austin Liu</maintainer>
+
+  <license>MIT</license>
+
+  <run_depend>urdf</run_depend>
+  <run_depend>xacro</run_depend>
+  <run_depend>joint_state_publisher</run_depend>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+</package>

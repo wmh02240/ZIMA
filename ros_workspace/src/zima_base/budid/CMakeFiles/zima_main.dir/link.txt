@@ -1,0 +1,1 @@
+/usr/bin/c++  -std=c++14 -Wall -O3 -DNDEBUG -rdynamic CMakeFiles/zima_main.dir/src/main.cpp.o -o zima_main  -Wl,-rpath,/home/ubuntu/workspace/ZIMA/ros_workspace/src/zima_base/budid libzima_base.so -lprotobuf -lgflags -lglog -lpthread

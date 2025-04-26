@@ -1,0 +1,9 @@
+<launch>
+
+    <include file="$(find zima_gazebo)/launch/world.launch"/>
+
+    <include file="$(find zima_gazebo)/launch/spawn.launch"/>
+
+    <!-- <include file="$(find zima_gazebo)/launch/teleop.launch"/> -->
+
+</launch>

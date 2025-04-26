@@ -1,0 +1,19 @@
+<launch>
+  <node name="zima_cleaning_test" pkg="zima_ros"
+      type="zima_kobuki_test" args="-house_scanning_flag=false"
+      output="screen">
+    <param name="port" value="/dev/ttyUSB0"/>
+  </node>
+
+  <!-- <include file="$(find sc_mini)/launch/xtark_lidar_m10.launch">
+    <arg name="laser_frame" value="lidar"/>
+    <arg name="laser_topic" value="/scan"/>
+    <arg name="port" value="/dev/sc_mini"/>
+  </include> -->
+
+  <include file="$(find nvilidar_ros)/launch/lidar.launch">
+    <arg name="laser_frame" value="lidar"/>
+    <arg name="port" value="/dev/ttyUSB1"/>
+  </include>
+
+</launch>

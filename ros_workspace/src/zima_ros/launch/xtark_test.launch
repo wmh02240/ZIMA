@@ -1,0 +1,14 @@
+<launch>
+  <node name="zima_test" pkg="zima_ros"
+      type="zima_xtark_test" args=""
+      output="screen">
+  </node>
+
+  <include file="$(find sc_mini)/launch/xtark_lidar_m10.launch">
+    <arg name="laser_frame" value="lidar"/>
+    <arg name="laser_topic" value="/scan"/>
+    <arg name="port" value="/dev/sc_mini"/>
+  </include>
+
+  <!-- <include file="$(find cartographer_ros)/launch/xtark.launch"></include> -->
+</launch>
