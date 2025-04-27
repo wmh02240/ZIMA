@@ -14,14 +14,13 @@
 namespace zima {
 
 class Simulator {
- public:
-  Simulator() = default;
-  ~Simulator() = default;
+  public:
+    Simulator() = default;
+    ~Simulator() = default;
 
-  void Run(Chassis::SPtr chassis, TransformManager& tf_manager,
-           const float& duration, NavMap::SPtr map);
+    void Run(Chassis::SPtr chassis, TransformManager &tf_manager, const float &duration, NavMap::SPtr map);
 };
 
-}  // namespace zima
+} // namespace zima
 
-#endif  // ZIMA_SIMULATOR_H
+#endif // ZIMA_SIMULATOR_H

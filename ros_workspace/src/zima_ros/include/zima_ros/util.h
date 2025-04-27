@@ -23,29 +23,24 @@ namespace zima_ros {
 
 using namespace zima;
 
-MapPoint OdometryToMapPoint(const nav_msgs::Odometry& odom);
+MapPoint OdometryToMapPoint(const nav_msgs::Odometry &odom);
 
-tf2::Transform MapPointToTFTransform(const MapPoint& point);
+tf2::Transform MapPointToTFTransform(const MapPoint &point);
 
-MapPoint TFTransformToMapPoint(const tf::Transform& tf);
+MapPoint TFTransformToMapPoint(const tf::Transform &tf);
 
-std::string DebugString(const tf::Transform& tf);
+std::string DebugString(const tf::Transform &tf);
 
-geometry_msgs::Transform TFToGeometryMsgTransform(const tf2::Transform& tf);
+geometry_msgs::Transform TFToGeometryMsgTransform(const tf2::Transform &tf);
 
-geometry_msgs::TransformStamped GeometryTransformToStampedTransform(
-    const ros::Time& timestamp, const string& frame_id,
-    const string& child_frame_id, const geometry_msgs::Transform& tf);
+geometry_msgs::TransformStamped GeometryTransformToStampedTransform(const ros::Time &timestamp, const string &frame_id, const string &child_frame_id,
+                                                                    const geometry_msgs::Transform &tf);
 
-SlamValueGridMap2D::SPtr OccupancyGridToSlamValueGridMap(
-    const std::string& name, const nav_msgs::OccupancyGrid::ConstPtr& msg);
+SlamValueGridMap2D::SPtr OccupancyGridToSlamValueGridMap(const std::string &name, const nav_msgs::OccupancyGrid::ConstPtr &msg);
 
-nav_msgs::OccupancyGrid SlamValueGridMapToOccupancyGrid(
-    const std::string& frame_id, const ros::Time& time,
-    const SlamValueGridMap2D::SPtr& map);
+nav_msgs::OccupancyGrid SlamValueGridMapToOccupancyGrid(const std::string &frame_id, const ros::Time &time, const SlamValueGridMap2D::SPtr &map);
 
-PointCloud::SPtr LaserScanToPointCloud(
-    const sensor_msgs::LaserScan::ConstPtr& scan);
-}  // namespace zima_ros
+PointCloud::SPtr LaserScanToPointCloud(const sensor_msgs::LaserScan::ConstPtr &scan);
+} // namespace zima_ros
 
-#endif  // ZIMA_ROS_UTIL_H_
+#endif // ZIMA_ROS_UTIL_H_

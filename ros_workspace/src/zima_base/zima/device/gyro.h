@@ -16,38 +16,38 @@
 namespace zima {
 
 class Gyro : public DeviceBase {
- public:
-  class Config : public DeviceBase::Config {
-   public:
-    Config();
-    explicit Config(const JsonSPtr& json);
-    ~Config() = default;
+  public:
+    class Config : public DeviceBase::Config {
+      public:
+        Config();
+        explicit Config(const JsonSPtr &json);
+        ~Config() = default;
 
-    bool ParseFromJson(const JsonSPtr& json);
-  };
+        bool ParseFromJson(const JsonSPtr &json);
+    };
 
-  Gyro() = delete;
-  Gyro(const std::string name, const Config& config);
-  ~Gyro() = default;
+    Gyro() = delete;
+    Gyro(const std::string name, const Config &config);
+    ~Gyro() = default;
 
-  using SPtr = std::shared_ptr<Gyro>;
+    using SPtr = std::shared_ptr<Gyro>;
 
-  void SetDegree(const float& degree, const double& data_timestamp);
+    void SetDegree(const float &degree, const double &data_timestamp);
 
-  float GetDegree() const;
+    float GetDegree() const;
 
-  double GetDataTimeStamp() const;
+    double GetDataTimeStamp() const;
 
-  bool CheckFresh(const double& limit) const;
+    bool CheckFresh(const double &limit) const;
 
-  static const std::string kNullName_;
+    static const std::string kNullName_;
 
- private:
-  ReadWriteLock::SPtr lock_;
-  float degree_;
-  double data_timestamp_;
+  private:
+    ReadWriteLock::SPtr lock_;
+    float degree_;
+    double data_timestamp_;
 };
 
-}  // namespace zima
+} // namespace zima
 
-#endif  // ZIMA_GYRO_H
+#endif // ZIMA_GYRO_H

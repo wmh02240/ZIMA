@@ -13,6 +13,6 @@ namespace zima {
 
 std::string GetCoreVersionInfo();
 
-}  // namespace zima
+} // namespace zima
 
-#endif  // ZIMA_CORE_VERSION_H
+#endif // ZIMA_CORE_VERSION_H

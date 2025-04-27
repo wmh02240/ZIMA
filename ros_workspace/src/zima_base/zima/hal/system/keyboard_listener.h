@@ -18,25 +18,25 @@
 namespace zima {
 
 class KeyboardListener {
- public:
-  using CallBackFunc = std::function<void(const char& key)>;
+  public:
+    using CallBackFunc = std::function<void(const char &key)>;
 
-  KeyboardListener() = delete;
-  KeyboardListener(const CallBackFunc& cb_func);
-  ~KeyboardListener();
+    KeyboardListener() = delete;
+    KeyboardListener(const CallBackFunc &cb_func);
+    ~KeyboardListener();
 
-  bool Start();
-  bool Stop();
+    bool Start();
+    bool Stop();
 
- private:
-  void OperateThread(const ZimaThreadWrapper::ThreadParam& param);
+  private:
+    void OperateThread(const ZimaThreadWrapper::ThreadParam &param);
 
-  std::atomic_bool working_;
-  CallBackFunc cb_func_;
-  ZimaThreadWrapper::ThreadParam thread_param_;
-  struct termios init_settings_;
+    std::atomic_bool working_;
+    CallBackFunc cb_func_;
+    ZimaThreadWrapper::ThreadParam thread_param_;
+    struct termios init_settings_;
 };
 
-}  // namespace zima
+} // namespace zima
 
-#endif  // ZIMA_KEYBOARD_LISTENER_H
+#endif // ZIMA_KEYBOARD_LISTENER_H

@@ -13,6 +13,6 @@ namespace zima {
 
 std::string GetROSVersionInfo();
 
-}  // namespace zima
+} // namespace zima
 
-#endif  // ZIMA_ROS_VERSION_H
+#endif // ZIMA_ROS_VERSION_H

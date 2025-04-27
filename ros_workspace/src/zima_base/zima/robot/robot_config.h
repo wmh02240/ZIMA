@@ -33,9 +33,8 @@ const std::string Chassis::Config::kChassisConfigKey_ = "chassis config";
 const std::string Chassis::Config::kDeviceConfigKey_ = "device config";
 const std::string Chassis::Config::kTrackLengthKey_ = "track length";
 const std::string Chassis::Config::kRadiusKey_ = "radius";
-const std::string Chassis::Config::kEncircleObstacleOnLeftKey_ =
-    "encircle obstacle on left";
+const std::string Chassis::Config::kEncircleObstacleOnLeftKey_ = "encircle obstacle on left";
 
-}  // namespace zima
+} // namespace zima
 
-#endif  // ZIMA_ROBOT_CONFIG_H
+#endif // ZIMA_ROBOT_CONFIG_H

@@ -16,16 +16,13 @@ namespace zima {
 #define ZIMA_CORE_PATCH_VERSION "1"
 
 std::string GetCoreVersionInfo() {
-  static std::string version_info;
-  if (version_info.empty()) {
-    version_info += GetZimaPrintString();
-    version_info +=
-        "Zima core version " + std::string(ZIMA_CORE_MAJOR_VERSION) + "." +
-        std::string(ZIMA_CORE_MINOR_VERSION) + "." +
-        std::string(ZIMA_CORE_PATCH_VERSION) + ", build at " + __DATE__ + " " +
-        __TIME__ + ", hash:" + ZIMA_CORE_VERSION_HASH;
-  }
-  return version_info;
+    static std::string version_info;
+    if (version_info.empty()) {
+        version_info += GetZimaPrintString();
+        version_info += "Zima core version " + std::string(ZIMA_CORE_MAJOR_VERSION) + "." + std::string(ZIMA_CORE_MINOR_VERSION) + "." +
+                        std::string(ZIMA_CORE_PATCH_VERSION) + ", build at " + __DATE__ + " " + __TIME__ + ", hash:" + ZIMA_CORE_VERSION_HASH;
+    }
+    return version_info;
 }
 
-}  // namespace zima
+} // namespace zima

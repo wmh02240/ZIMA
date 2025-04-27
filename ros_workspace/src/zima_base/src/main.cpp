@@ -8,13 +8,13 @@
 #include "zima/zima_base_version.h"
 
 int main(int argc, char **argv) {
-  FLAGS_alsologtostderr = true;
-  FLAGS_colorlogtostderr = true;
-  google::InitGoogleLogging(argv[0]);
-  google::InstallFailureSignalHandler();
+    FLAGS_alsologtostderr = true;
+    FLAGS_colorlogtostderr = true;
+    google::InitGoogleLogging(argv[0]);
+    google::InstallFailureSignalHandler();
 
-  ZINFO << "Hello Zima";
-  ZINFO << zima::GetBaseVersionInfo();
+    ZINFO << "Hello Zima";
+    ZINFO << zima::GetBaseVersionInfo();
 
-  return 0;
+    return 0;
 }
