@@ -3,21 +3,21 @@ if [ -e /dev/nvidia0 ]; then
   docker run \
     -it \
     -u zima \
-    --name="zima_demo" \
+    --name="zima" \
     --net=host \
     --privileged \
-    -v /home/ubuntu:/home/zima \
-    -v /dev:/dev \
+    -v /home/ubuntu/workspace:/home/zima/workspace \
     -e DISPLAY=$DISPLAY \
     -v /tmp/.X11-unix:/tmp/.X11-unix \
+    -w /home/zima/workspace \
+    -v /dev:/dev \
     --runtime=nvidia \
     --device /dev/nvidia0 \
     --device /dev/nvidia-uvm \
     --device /dev/nvidia-uvm-tools \
     --device /dev/nvidiactl \
-    --runtime=nvidia \
     --gpus all \
-    zima:latest
+    zima:v2
 else
   echo "Launch without nvidia support."
   docker run \

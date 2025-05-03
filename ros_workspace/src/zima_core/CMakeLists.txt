@@ -30,7 +30,7 @@ FOREACH(FIL ${PROTOBUF_FILES})
     # string(REGEX REPLACE "(.+)\\${FILE_NAME}.*" "\\1" FILE_PATH ${FIL})
 
     string(REGEX MATCH "(zima/proto.*)" OUT_PATH ${FILE_PATH})
-    # message(STATUS "OUT_PATH ${OUT_PATH}")
+    message(STATUS "OUT_PATH ${OUT_PATH}")
 
     # message(STATUS "CMAKE_CURRENT_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}")
     # message(STATUS "FIL ${FIL}")
@@ -43,8 +43,8 @@ FOREACH(FIL ${PROTOBUF_FILES})
     EXECUTE_PROCESS(
         COMMAND ${PROTOBUF_PROTOC_EXECUTABLE} ${PROTO_FLAGS} --cpp_out=${PROTO_META_BASE_DIR} ${FIL}
     )
-    # message("Copying " ${PROTO_SRC} " to " ${FILE_PATH})
-    # message("Copying " ${PROTO_HDR} " to " ${FILE_PATH})
+    message("Copying " ${PROTO_SRC} " to " ${FILE_PATH})
+    message("Copying " ${PROTO_HDR} " to " ${FILE_PATH})
 
     file(COPY ${PROTO_SRC} DESTINATION ${FILE_PATH})
     file(COPY ${PROTO_HDR} DESTINATION ${FILE_PATH})
