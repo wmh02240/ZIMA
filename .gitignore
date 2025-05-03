@@ -5,3 +5,5 @@ build
 ros_workspace/build/*
 ros_workspace/devel/*
 ros_workspace/src/zima_gazebo/worlds/*
+ros_workspace/src/zima_base/build/*
+ros_workspace/src/zima_core/build/*

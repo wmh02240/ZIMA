@@ -1,9 +1,0 @@
-/home/ubuntu/workspace/ZIMA/ros_workspace/src/zima_base/budid/CMakeFiles/zima_base.dir
-/home/ubuntu/workspace/ZIMA/ros_workspace/src/zima_base/budid/CMakeFiles/zima_base_static.dir
-/home/ubuntu/workspace/ZIMA/ros_workspace/src/zima_base/budid/CMakeFiles/zima_main.dir
-/home/ubuntu/workspace/ZIMA/ros_workspace/src/zima_base/budid/CMakeFiles/edit_cache.dir
-/home/ubuntu/workspace/ZIMA/ros_workspace/src/zima_base/budid/CMakeFiles/rebuild_cache.dir
-/home/ubuntu/workspace/ZIMA/ros_workspace/src/zima_base/budid/CMakeFiles/list_install_components.dir
-/home/ubuntu/workspace/ZIMA/ros_workspace/src/zima_base/budid/CMakeFiles/install.dir
-/home/ubuntu/workspace/ZIMA/ros_workspace/src/zima_base/budid/CMakeFiles/install/local.dir
-/home/ubuntu/workspace/ZIMA/ros_workspace/src/zima_base/budid/CMakeFiles/install/strip.dir
