@@ -9,12 +9,12 @@
 #include "zima/zima_base_version.h"
 
 int main(int argc, char **argv) {
-  FLAGS_alsologtostderr = true;
-  FLAGS_colorlogtostderr = true;
-  google::InitGoogleLogging(argv[0]);
-  google::InstallFailureSignalHandler();
+    FLAGS_alsologtostderr = true;
+    FLAGS_colorlogtostderr = true;
+    google::InitGoogleLogging(argv[0]);
+    google::InstallFailureSignalHandler();
 
-  auto global_json_config = zima::GlobalJsonConfig::Instance();
-  global_json_config->GetConfigDescription();
-  return 0;
+    auto global_json_config = zima::GlobalJsonConfig::Instance();
+    global_json_config->GetConfigDescription();
+    return 0;
 }

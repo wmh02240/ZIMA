@@ -27,7 +27,7 @@
 #define ZCOLOR_RED "\033[0;32;31m"
 #define ZCOLOR_LIGHT_RED "\033[1;31m"
 #define ZCOLOR_GREEN "\033[0;32;32m"
-#define ZCOLOR_LIGHT_GREEN "\033[1;32m"  
+#define ZCOLOR_LIGHT_GREEN "\033[1;32m"
 #define ZCOLOR_BLUE "\033[0;32;34m"
 #define ZCOLOR_LIGHT_BLUE "\033[1;34m"
 #define ZCOLOR_DARY_GRAY "\033[1;30m"
@@ -38,4 +38,4 @@
 #define ZCOLOR_YELLOW "\033[0;33m"
 #define ZCOLOR_WHITE "\033[1;37m"
 
-#endif  // ZIMA_LOGGER_H
+#endif // ZIMA_LOGGER_H

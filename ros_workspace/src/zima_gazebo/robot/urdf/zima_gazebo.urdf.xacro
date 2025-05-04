@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 
-<robot name="zima_gazebo_robot_simulation" xmlns:xacro="http://ros.org/wiki/xacro">
+<robot name="zima_gazebo_robot_simulation"
+  xmlns:xacro="http://ros.org/wiki/xacro">
   <xacro:include filename="$(find zima_gazebo)/robot/urdf/config.urdf.xacro"/>
 
   <xacro:macro name="zima_gazebo_robot_sim">
@@ -84,8 +85,8 @@
       <kd>1e18</kd>
       <fdir1>1.0</fdir1>
       <dynamics>
-          <damping>0.71</damping>
-          <friction>0.0</friction>
+        <damping>0.71</damping>
+        <friction>0.0</friction>
       </dynamics>
     </gazebo>
 
@@ -97,8 +98,8 @@
       <kd>1e18</kd>
       <fdir1>1.0</fdir1>
       <dynamics>
-          <damping>0.71</damping>
-          <friction>0.0</friction>
+        <damping>0.71</damping>
+        <friction>0.0</friction>
       </dynamics>
     </gazebo>
 
@@ -200,26 +201,26 @@
 
   </xacro:macro>
 
-  <xacro:macro name="zima_ros_robot_controller" >
-      <gazebo>
-          <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
-              <legacyModeNS>true</legacyModeNS>
-              <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
-          </plugin>
-      </gazebo>
+  <xacro:macro name="zima_ros_robot_controller">
+    <gazebo>
+      <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+        <legacyModeNS>true</legacyModeNS>
+        <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
+      </plugin>
+    </gazebo>
 
-      <gazebo>
-          <plugin name="p3d_base_controller" filename="libgazebo_ros_p3d.so">
-              <alwaysOn>true</alwaysOn>
-              <updateRate>${chassis_odom_rate}</updateRate>
-              <bodyName>chassis_link</bodyName>
-              <topicName>${topic_prefix}/${chassis_odom_topic}</topicName>
-              <gaussianNoise>0</gaussianNoise>
-              <frameName>world</frameName>
-              <xyzOffsets>0 0 0</xyzOffsets>
-              <rpyOffsets>0 0 0</rpyOffsets>
-          </plugin>
-      </gazebo>
+    <gazebo>
+      <plugin name="p3d_base_controller" filename="libgazebo_ros_p3d.so">
+        <alwaysOn>true</alwaysOn>
+        <updateRate>${chassis_odom_rate}</updateRate>
+        <bodyName>chassis_link</bodyName>
+        <topicName>${topic_prefix}/${chassis_odom_topic}</topicName>
+        <gaussianNoise>0</gaussianNoise>
+        <frameName>world</frameName>
+        <xyzOffsets>0 0 0</xyzOffsets>
+        <rpyOffsets>0 0 0</rpyOffsets>
+      </plugin>
+    </gazebo>
   </xacro:macro>
 
 </robot>

@@ -37,165 +37,167 @@ float path_z = 0.2;
 float plan_path_z = 0.1;
 float robot_z = 0.3;
 
-// class CartographerSlam : public SlamBase {
-//   public:
-//     CartographerSlam() = delete;
-//     CartographerSlam(ros::ServiceClient *cartographer_start_trajectory_client, ros::ServiceClient *cartographer_stop_client,
-//                      ros::ServiceClient *cartographer_pause_resume_client)
-//         : SlamBase(SlamBase::Config()), cartographer_start_trajectory_client_(cartographer_start_trajectory_client),
-//           cartographer_stop_client_(cartographer_stop_client), cartographer_pause_resume_client_(cartographer_pause_resume_client) {
-//         is_ready_.store(true);
-//     }
-//     ~CartographerSlam() = default;
+/*
+class CartographerSlam : public SlamBase {
+  public:
+    CartographerSlam() = delete;
+    CartographerSlam(ros::ServiceClient *cartographer_start_trajectory_client, ros::ServiceClient *cartographer_stop_client,
+                     ros::ServiceClient *cartographer_pause_resume_client)
+        : SlamBase(SlamBase::Config()), cartographer_start_trajectory_client_(cartographer_start_trajectory_client),
+          cartographer_stop_client_(cartographer_stop_client), cartographer_pause_resume_client_(cartographer_pause_resume_client) {
+        is_ready_.store(true);
+    }
+    ~CartographerSlam() = default;
 
-//     bool StartSlam(const MapPoint &init_pose, const std::string &save_file_name, const std::string &load_file_name) override {
-//         if (is_running_.load()) {
-//             ZINFO << "Slam is already running.";
-//             return false;
-//         }
+    bool StartSlam(const MapPoint &init_pose, const std::string &save_file_name, const std::string &load_file_name) override {
+        if (is_running_.load()) {
+            ZINFO << "Slam is already running.";
+            return false;
+        }
 
-//         // Start cartographer.
-//         cartographer_ros_msgs::StartTrajectory request;
-//         request.request.use_initial_pose = !load_file_name.empty();
-//         geometry_msgs::Pose cartographer_init_pose;
-//         cartographer_init_pose.position.x = init_pose.X();
-//         cartographer_init_pose.position.y = init_pose.Y();
-//         auto init_pose_transform = zima_ros::MapPointToTFTransform(init_pose);
-//         cartographer_init_pose.orientation.x = init_pose_transform.getRotation().x();
-//         cartographer_init_pose.orientation.y = init_pose_transform.getRotation().y();
-//         cartographer_init_pose.orientation.z = init_pose_transform.getRotation().z();
-//         cartographer_init_pose.orientation.w = init_pose_transform.getRotation().w();
-//         request.request.initial_pose = cartographer_init_pose;
-//         request.request.configuration_basename = load_file_name;
-//         request.request.configuration_directory = save_file_name;
+        // Start cartographer.
+        cartographer_ros_msgs::StartTrajectory request;
+        request.request.use_initial_pose = !load_file_name.empty();
+        geometry_msgs::Pose cartographer_init_pose;
+        cartographer_init_pose.position.x = init_pose.X();
+        cartographer_init_pose.position.y = init_pose.Y();
+        auto init_pose_transform = zima_ros::MapPointToTFTransform(init_pose);
+        cartographer_init_pose.orientation.x = init_pose_transform.getRotation().x();
+        cartographer_init_pose.orientation.y = init_pose_transform.getRotation().y();
+        cartographer_init_pose.orientation.z = init_pose_transform.getRotation().z();
+        cartographer_init_pose.orientation.w = init_pose_transform.getRotation().w();
+        request.request.initial_pose = cartographer_init_pose;
+        request.request.configuration_basename = load_file_name;
+        request.request.configuration_directory = save_file_name;
 
-//         while (ros::ok()) {
-//             ZINFO << "Call for start slam.";
-//             if (!cartographer_start_trajectory_client_->call(request)) {
-//                 ZERROR << "Call service failed.";
-//                 Time::SleepSec(1);
-//                 continue;
-//             }
-//             break;
-//         }
-//         ZINFO << "Call for start slam finish.";
+        while (ros::ok()) {
+            ZINFO << "Call for start slam.";
+            if (!cartographer_start_trajectory_client_->call(request)) {
+                ZERROR << "Call service failed.";
+                Time::SleepSec(1);
+                continue;
+            }
+            break;
+        }
+        ZINFO << "Call for start slam finish.";
 
-//         {
-//             WriteLocker lock(access_);
-//             start_or_resume_timestamp_ = Time::Now();
-//         }
+        {
+            WriteLocker lock(access_);
+            start_or_resume_timestamp_ = Time::Now();
+        }
 
-//         is_running_.store(true);
+        is_running_.store(true);
 
-//         return true;
-//     }
+        return true;
+    }
 
-//     bool StopSlam() override {
-//         // if (!is_running_.load()) {
-//         //   ZINFO << "Slam is not running.";
-//         //   return false;
-//         // }
+    bool StopSlam() override {
+        // if (!is_running_.load()) {
+        //   ZINFO << "Slam is not running.";
+        //   return false;
+        // }
 
-//         cartographer_ros_msgs::WriteState request;
-//         while (ros::ok()) {
-//             ZINFO << "Call for stop slam.";
-//             if (!cartographer_stop_client_->call(request)) {
-//                 ZERROR << "Call service failed.";
-//                 Time::SleepSec(1);
-//                 continue;
-//             }
-//             break;
-//         }
-//         ZINFO << "Call for stop slam finish.";
+        cartographer_ros_msgs::WriteState request;
+        while (ros::ok()) {
+            ZINFO << "Call for stop slam.";
+            if (!cartographer_stop_client_->call(request)) {
+                ZERROR << "Call service failed.";
+                Time::SleepSec(1);
+                continue;
+            }
+            break;
+        }
+        ZINFO << "Call for stop slam finish.";
 
-//         // Wait for slam file to be written.
-//         Time::SleepMSec(300);
+        // Wait for slam file to be written.
+        Time::SleepMSec(300);
 
-//         {
-//             WriteLocker lock(access_);
-//             stop_or_pause_timestamp_ = Time::Now();
-//         }
+        {
+            WriteLocker lock(access_);
+            stop_or_pause_timestamp_ = Time::Now();
+        }
 
-//         is_running_.store(false);
-//         return true;
-//     }
+        is_running_.store(false);
+        return true;
+    }
 
-//     bool PauseSlam() override {
-//         if (!is_running_.load()) {
-//             ZINFO << "Slam is not running.";
-//             return false;
-//         }
+    bool PauseSlam() override {
+        if (!is_running_.load()) {
+            ZINFO << "Slam is not running.";
+            return false;
+        }
 
-//         cartographer_ros_msgs::StartTrajectory request;
-//         request.request.use_initial_pose = false;
-//         while (ros::ok()) {
-//             ZINFO << "Call for pause slam.";
-//             if (!cartographer_pause_resume_client_->call(request)) {
-//                 ZERROR << "Call service failed.";
-//                 Time::SleepSec(1);
-//                 continue;
-//             }
-//             break;
-//         }
-//         ZINFO << "Call for pause slam finish.";
+        cartographer_ros_msgs::StartTrajectory request;
+        request.request.use_initial_pose = false;
+        while (ros::ok()) {
+            ZINFO << "Call for pause slam.";
+            if (!cartographer_pause_resume_client_->call(request)) {
+                ZERROR << "Call service failed.";
+                Time::SleepSec(1);
+                continue;
+            }
+            break;
+        }
+        ZINFO << "Call for pause slam finish.";
 
-//         {
-//             WriteLocker lock(access_);
-//             stop_or_pause_timestamp_ = Time::Now();
-//         }
+        {
+            WriteLocker lock(access_);
+            stop_or_pause_timestamp_ = Time::Now();
+        }
 
-//         is_running_.store(false);
+        is_running_.store(false);
 
-//         return true;
-//     }
+        return true;
+    }
 
-//     bool ResumeSlam(const MapPoint &init_pose) override {
-//         if (is_running_.load()) {
-//             ZINFO << "Slam is already running.";
-//             return false;
-//         }
+    bool ResumeSlam(const MapPoint &init_pose) override {
+        if (is_running_.load()) {
+            ZINFO << "Slam is already running.";
+            return false;
+        }
 
-//         // Wait for a moment for relocation result to publish.
-//         Time::SleepMSec(100);
+        // Wait for a moment for relocation result to publish.
+        Time::SleepMSec(100);
 
-//         cartographer_ros_msgs::StartTrajectory request;
-//         request.request.use_initial_pose = true;
-//         geometry_msgs::Pose cartographer_init_pose;
-//         cartographer_init_pose.position.x = init_pose.X();
-//         cartographer_init_pose.position.y = init_pose.Y();
-//         auto init_pose_transform = zima_ros::MapPointToTFTransform(init_pose);
-//         cartographer_init_pose.orientation.x = init_pose_transform.getRotation().x();
-//         cartographer_init_pose.orientation.y = init_pose_transform.getRotation().y();
-//         cartographer_init_pose.orientation.z = init_pose_transform.getRotation().z();
-//         cartographer_init_pose.orientation.w = init_pose_transform.getRotation().w();
-//         request.request.initial_pose = cartographer_init_pose;
+        cartographer_ros_msgs::StartTrajectory request;
+        request.request.use_initial_pose = true;
+        geometry_msgs::Pose cartographer_init_pose;
+        cartographer_init_pose.position.x = init_pose.X();
+        cartographer_init_pose.position.y = init_pose.Y();
+        auto init_pose_transform = zima_ros::MapPointToTFTransform(init_pose);
+        cartographer_init_pose.orientation.x = init_pose_transform.getRotation().x();
+        cartographer_init_pose.orientation.y = init_pose_transform.getRotation().y();
+        cartographer_init_pose.orientation.z = init_pose_transform.getRotation().z();
+        cartographer_init_pose.orientation.w = init_pose_transform.getRotation().w();
+        request.request.initial_pose = cartographer_init_pose;
 
-//         while (ros::ok()) {
-//             ZINFO << "Call for resume slam.";
-//             if (!cartographer_pause_resume_client_->call(request)) {
-//                 ZERROR << "Call service failed.";
-//                 Time::SleepSec(1);
-//                 continue;
-//             }
-//             break;
-//         }
-//         ZINFO << "Call for resume slam finish.";
+        while (ros::ok()) {
+            ZINFO << "Call for resume slam.";
+            if (!cartographer_pause_resume_client_->call(request)) {
+                ZERROR << "Call service failed.";
+                Time::SleepSec(1);
+                continue;
+            }
+            break;
+        }
+        ZINFO << "Call for resume slam finish.";
 
-//         {
-//             WriteLocker lock(access_);
-//             start_or_resume_timestamp_ = Time::Now();
-//         }
+        {
+            WriteLocker lock(access_);
+            start_or_resume_timestamp_ = Time::Now();
+        }
 
-//         is_running_.store(true);
+        is_running_.store(true);
 
-//         return true;
-//     }
+        return true;
+    }
 
-//   private:
-//     ros::ServiceClient *cartographer_start_trajectory_client_;
-//     ros::ServiceClient *cartographer_stop_client_;
-//     ros::ServiceClient *cartographer_pause_resume_client_;
-// };
+  private:
+    ros::ServiceClient *cartographer_start_trajectory_client_;
+    ros::ServiceClient *cartographer_stop_client_;
+    ros::ServiceClient *cartographer_pause_resume_client_;
+};
+*/
 
 ZimaNode::ZimaNode(const bool &use_simple_slam, const bool &use_sim_time)
     : use_sim_time_(use_sim_time), operation_data_access_(std::make_shared<ReadWriteLock>()), operation_data_(nullptr),

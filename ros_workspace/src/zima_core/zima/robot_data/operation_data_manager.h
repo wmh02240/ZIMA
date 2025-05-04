@@ -13,20 +13,16 @@
 namespace zima {
 
 class OperationDataManager {
- public:
-  OperationDataManager() = delete;
+  public:
+    OperationDataManager() = delete;
 
-  static bool CreateOperationData(
-      OperationData::SPtr& operation_data, const SlamBase::SPtr& slam_wrapper,
-      const OperationData::OperationType& operation_type =
-          OperationData::OperationType::kAllHouseCleaning,
-      const bool& use_simple_slam = false);
+    static bool CreateOperationData(OperationData::SPtr &operation_data, const SlamBase::SPtr &slam_wrapper,
+                                    const OperationData::OperationType &operation_type = OperationData::OperationType::kAllHouseCleaning,
+                                    const bool &use_simple_slam = false);
 
-  static bool ReleaseOperationData(OperationData::SPtr& operation_data,
-                                   const SlamBase::SPtr& slam_wrapper,
-                                   const bool& use_simple_slam = false);
+    static bool ReleaseOperationData(OperationData::SPtr &operation_data, const SlamBase::SPtr &slam_wrapper, const bool &use_simple_slam = false);
 };
 
-}  // namespace zima
+} // namespace zima
 
-#endif  // ZIMA_OPERATION_DATA_MANAGER_H
+#endif // ZIMA_OPERATION_DATA_MANAGER_H

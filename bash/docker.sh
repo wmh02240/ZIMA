@@ -3,7 +3,7 @@ if [ -e /dev/nvidia0 ]; then
   docker run \
     -it \
     -u zima \
-    --name="zima" \
+    --name="gtrl" \
     --net=host \
     --privileged \
     -v /home/ubuntu/workspace:/home/zima/workspace \

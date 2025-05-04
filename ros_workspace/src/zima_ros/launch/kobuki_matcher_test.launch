@@ -1,7 +1,5 @@
 <launch>
-  <node name="zima_matcher_test" pkg="zima_ros"
-      type="zima_matcher_kobuki_test" args=""
-      output="screen">
+  <node name="zima_matcher_test" pkg="zima_ros" type="zima_matcher_kobuki_test" args="" output="screen">
     <param name="port" value="/dev/ttyUSB0"/>
   </node>
 

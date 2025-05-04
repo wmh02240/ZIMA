@@ -57,10 +57,10 @@ Visualization Manager:
         Expand Link Details: false
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
-        chassis_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
+        # chassis_link:
+        #   Alpha: 1
+        #   Show Axes: false
+        #   Show Trail: false
         chassis_link:
           Alpha: 1
           Show Axes: false
@@ -103,8 +103,8 @@ Visualization Manager:
         All Enabled: true
         chassis_link:
           Value: true
-        chassis_link:
-          Value: true
+        # chassis_link:
+        #   Value: true
         caster_back_link:
           Value: true
         caster_front_link:
@@ -129,16 +129,11 @@ Visualization Manager:
           odom:
             chassis_link:
               chassis_link:
-                caster_back_link:
-                  {}
-                caster_front_link:
-                  {}
-                lidar_link:
-                  {}
-                wheel_left_link:
-                  {}
-                wheel_right_link:
-                  {}
+                caster_back_link: {}
+                caster_front_link: {}
+                lidar_link: {}
+                wheel_left_link: {}
+                wheel_right_link: {}
       Update Interval: 0
       Value: true
     - Alpha: 1

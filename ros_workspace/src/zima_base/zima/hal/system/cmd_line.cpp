@@ -10,37 +10,37 @@
 
 namespace zima {
 
-int ZimaRunCommand(const std::string& command) {
-  ZGINFO << "Run command \"" << command << "\"";
-  auto ret = system(command.c_str());
-  ZGINFO << "Run command \"" << command << "\" return " << ret;
-  return ret;
+int ZimaRunCommand(const std::string &command) {
+    ZGINFO << "Run command \"" << command << "\"";
+    auto ret = system(command.c_str());
+    ZGINFO << "Run command \"" << command << "\" return " << ret;
+    return ret;
 }
 
 std::string ZimaGetCommandResult(const std::string &command) {
-  char buf[10240] = {0};
-  FILE *pf = NULL;
+    char buf[10240] = {0};
+    FILE *pf = NULL;
 
-  ZGINFO << "Run command \"" << command << "\"";
+    ZGINFO << "Run command \"" << command << "\"";
 
-  if ((pf = popen(command.c_str(), "r")) == NULL) {
-    return "";
-  }
+    if ((pf = popen(command.c_str(), "r")) == NULL) {
+        return "";
+    }
 
-  std::string result_str = "\n";
-  while (fgets(buf, sizeof(buf), pf)) {
-    result_str += buf;
-  }
+    std::string result_str = "\n";
+    while (fgets(buf, sizeof(buf), pf)) {
+        result_str += buf;
+    }
 
-  pclose(pf);
+    pclose(pf);
 
-  unsigned int result_size = result_str.size();
-  if (result_size > 0 && result_str[result_size - 1] == '\n')  // linux
-  {
-    result_str = result_str.substr(0, result_size - 1);
-  }
+    unsigned int result_size = result_str.size();
+    if (result_size > 0 && result_str[result_size - 1] == '\n') // linux
+    {
+        result_str = result_str.substr(0, result_size - 1);
+    }
 
-  return result_str;
+    return result_str;
 }
 
-}  // namespace zima
+} // namespace zima

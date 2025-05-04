@@ -6,16 +6,17 @@
   See zima_standalone.urdf.xacro for a standalone urdf to be tested with
       zima_gazebo/launch/view_model.launch
  -->
-<robot name="zima_gazebo_robot" xmlns:xacro="http://ros.org/wiki/xacro">
+<robot name="zima_gazebo_robot"
+  xmlns:xacro="http://ros.org/wiki/xacro">
   <xacro:include filename="$(find zima_gazebo)/robot/urdf/config.urdf.xacro"/>
   <xacro:include filename="$(find zima_gazebo)/robot/urdf/common_properties.urdf.xacro"/>
   <xacro:include filename="$(find zima_gazebo)/robot/urdf/zima_gazebo.urdf.xacro"/>
-  
-  <!-- zima_gazebo_robot --> 
-  <xacro:macro name="zima_gazebo_robot">   
+
+  <!-- zima_gazebo_robot -->
+  <xacro:macro name="zima_gazebo_robot">
     <link name="base_link"/>
 
-    <!-- chassis --> 
+    <!-- chassis -->
     <link name="chassis_link">
       <visual>
         <geometry>
@@ -37,12 +38,12 @@
       </inertial>
     </link>
     <joint name="chassis_base_link_joint" type="fixed">
-        <origin xyz="0 0 0" rpy="0 0 0" />
-        <parent link="base_link" />
-        <child link="chassis_link" />
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <parent link="base_link" />
+      <child link="chassis_link" />
     </joint>
 
-    <!-- left wheel --> 
+    <!-- left wheel -->
     <link name="wheel_left_link">
       <visual>
         <geometry>
@@ -70,7 +71,7 @@
       <axis xyz="0 0 1"/>
     </joint>
 
-    <!-- right wheel --> 
+    <!-- right wheel -->
     <link name="wheel_right_link">
       <visual>
         <geometry>
@@ -98,7 +99,7 @@
       <axis xyz="0 0 1"/>
     </joint>
 
-    <!-- caster front wheel --> 
+    <!-- caster front wheel -->
     <link name="caster_front_link">
       <visual>
         <geometry>
@@ -116,12 +117,7 @@
       <inertial>
         <mass value="${caster_mass}" />
         <origin xyz="0 0 0" />
-        <inertia ixx="${2*caster_mass*caster_radius*caster_radius/5}"
-                 ixy="0.0"
-                 ixz="0.0"
-                 iyy="${2*caster_mass*caster_radius*caster_radius/5}"
-                 iyz="0.0"
-                 izz="${2*caster_mass*caster_radius*caster_radius/5}" />
+        <inertia ixx="${2*caster_mass*caster_radius*caster_radius/5}" ixy="0.0" ixz="0.0" iyy="${2*caster_mass*caster_radius*caster_radius/5}" iyz="0.0" izz="${2*caster_mass*caster_radius*caster_radius/5}" />
       </inertial>
     </link>
     <joint name="caster_front_joint" type="fixed">
@@ -130,7 +126,7 @@
       <origin xyz="${caster_x} 0 ${-chassis_height/2}" rpy="0 0 0"/>
     </joint>
 
-    <!-- caster back wheel --> 
+    <!-- caster back wheel -->
     <link name="caster_back_link">
       <!-- <visual>
         <geometry>
@@ -148,12 +144,7 @@
       <inertial>
         <mass value="${caster_mass}" />
         <origin xyz="0 0 0" />
-        <inertia ixx="${2*caster_mass*caster_radius*caster_radius/5}"
-                 ixy="0.0"
-                 ixz="0.0"
-                 iyy="${2*caster_mass*caster_radius*caster_radius/5}"
-                 iyz="0.0"
-                 izz="${2*caster_mass*caster_radius*caster_radius/5}" />
+        <inertia ixx="${2*caster_mass*caster_radius*caster_radius/5}" ixy="0.0" ixz="0.0" iyy="${2*caster_mass*caster_radius*caster_radius/5}" iyz="0.0" izz="${2*caster_mass*caster_radius*caster_radius/5}" />
       </inertial>
     </link>
     <joint name="caster_back_joint" type="fixed">
@@ -162,7 +153,7 @@
       <origin xyz="${-caster_x} 0 ${-chassis_height/2}" rpy="0 0 0"/>
     </joint>
 
-    <!-- lidar --> 
+    <!-- lidar -->
     <link name="lidar_link">
       <visual>
         <geometry>
@@ -189,7 +180,7 @@
       <child link="lidar_link" />
     </joint>
 
-    <!-- left wall sensor --> 
+    <!-- left wall sensor -->
     <link name="left_wall_sensor_link"/>
     <joint name="left_wall_sensor_joint" type="fixed">
       <origin xyz="${left_wall_sensor_x} ${left_wall_sensor_y} ${left_wall_sensor_z}" rpy="0 0 ${left_wall_sensor_yaw}" />
@@ -197,7 +188,7 @@
       <child link="left_wall_sensor_link" />
     </joint>
 
-    <!-- right wall sensor --> 
+    <!-- right wall sensor -->
     <link name="right_wall_sensor_link"/>
     <joint name="right_wall_sensor_joint" type="fixed">
       <origin xyz="${right_wall_sensor_x} ${right_wall_sensor_y} ${right_wall_sensor_z}" rpy="0 0 ${right_wall_sensor_yaw}" />

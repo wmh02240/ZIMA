@@ -14,43 +14,43 @@
 namespace zima {
 
 class Serial {
- public:
-  Serial() = delete;
-  Serial(const std::string& serial_port, const int& baud);
-  ~Serial();
+  public:
+    Serial() = delete;
+    Serial(const std::string &serial_port, const int &baud);
+    ~Serial();
 
-  using BytesFrame = std::vector<uint8_t>;
-  using BytesFrames = std::deque<BytesFrame>;
+    using BytesFrame = std::vector<uint8_t>;
+    using BytesFrames = std::deque<BytesFrame>;
 
-  bool IsOpened();
-  virtual bool Open();
-  bool Close();
-  bool Read();
-  bool Write(const BytesFrame& write_bytes);
+    bool IsOpened();
+    virtual bool Open();
+    bool Close();
+    bool Read();
+    bool Write(const BytesFrame &write_bytes);
 
-  virtual bool ParseFrame(const uint8_t& recv_byte);
-  bool GetReadValidFramesData(BytesFrames& frames);
-  virtual bool CacheWriteFrames(const BytesFrame& frames);
-  bool GetWriteFrames(BytesFrames& frames);
+    virtual bool ParseFrame(const uint8_t &recv_byte);
+    bool GetReadValidFramesData(BytesFrames &frames);
+    virtual bool CacheWriteFrames(const BytesFrame &frames);
+    bool GetWriteFrames(BytesFrames &frames);
 
-  static std::string DebugString(const BytesFrame& frame);
+    static std::string DebugString(const BytesFrame &frame);
 
- private:
-  ReadWriteLock::SPtr access_;
+  private:
+    ReadWriteLock::SPtr access_;
 
-  int fd_;
-  fd_set fd_set_read_;
-  std::string serial_port_str_;
-  int serial_port_baud_;
-  struct timeval read_timeout_;
+    int fd_;
+    fd_set fd_set_read_;
+    std::string serial_port_str_;
+    int serial_port_baud_;
+    struct timeval read_timeout_;
 
- protected:
-  ReadWriteLock::SPtr data_access_;
-  BytesFrame cache_bytes_;
-  BytesFrames valid_frames_data_;
-  BytesFrames write_frames_;
+  protected:
+    ReadWriteLock::SPtr data_access_;
+    BytesFrame cache_bytes_;
+    BytesFrames valid_frames_data_;
+    BytesFrames write_frames_;
 };
 
-}  // namespace zima
+} // namespace zima
 
-#endif  // ZIMA_SERIAL_H
+#endif // ZIMA_SERIAL_H

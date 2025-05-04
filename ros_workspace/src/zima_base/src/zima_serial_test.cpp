@@ -11,28 +11,28 @@
 using namespace zima;
 
 void SerialReadTest() {
-  ZINFO;
-  Serial serial("/dev/ttyAMA0", 115200);
-  ZINFO;
-  if (!serial.Open()) {
-    ZERROR;
-    return;
-  }
+    ZINFO;
+    Serial serial("/dev/ttyAMA0", 115200);
+    ZINFO;
+    if (!serial.Open()) {
+        ZERROR;
+        return;
+    }
 
-  Timer timer("Read duration", 3);
-  while (!timer.TimeUp()) {
-    serial.Read();
-    // Time::SleepMSec(50);
-  }
+    Timer timer("Read duration", 3);
+    while (!timer.TimeUp()) {
+        serial.Read();
+        // Time::SleepMSec(50);
+    }
 }
 
 int main(int argc, char **argv) {
-  FLAGS_alsologtostderr = true;
-  FLAGS_colorlogtostderr = true;
-  google::InitGoogleLogging(argv[0]);
-  google::InstallFailureSignalHandler();
+    FLAGS_alsologtostderr = true;
+    FLAGS_colorlogtostderr = true;
+    google::InitGoogleLogging(argv[0]);
+    google::InstallFailureSignalHandler();
 
-  SerialReadTest();
+    SerialReadTest();
 
-  return 0;
+    return 0;
 }

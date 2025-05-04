@@ -55,27 +55,27 @@
           "wheel speed control d": 4700
         },
         "left bumper": {
-          "cover range min degree":30,
-          "cover range max degree":90,
+          "cover range min degree": 30,
+          "cover range max degree": 90,
           "install degree": 30
         },
         "right bumper": {
-          "cover range min degree":-90,
-          "cover range max degree":-30,
+          "cover range min degree": -90,
+          "cover range max degree": -30,
           "install degree": -30
         },
         "center bumper": {
-          "cover range min degree":-30,
-          "cover range max degree":30,
+          "cover range min degree": -30,
+          "cover range max degree": 30,
           "install degree": 0
         },
         "left wall sensor": {
           "install degree": 80,
-          "mark distance on y" : 0.03
+          "mark distance on y": 0.03
         },
         "right wall sensor": {
           "install degree": -80,
-          "mark distance on y" : 0.03
+          "mark distance on y": 0.03
         },
         "gyro": {
           "tf to base": [
