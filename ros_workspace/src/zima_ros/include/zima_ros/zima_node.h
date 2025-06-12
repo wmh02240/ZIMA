@@ -127,7 +127,6 @@ class ZimaNode {
 
     ReadWriteLock::SPtr operation_data_access_;
     OperationData::SPtr operation_data_;
-
     ReadWriteLock::SPtr cmd_lock_;
 
     enum State {

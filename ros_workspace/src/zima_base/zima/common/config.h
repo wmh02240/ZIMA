@@ -14,33 +14,33 @@
 namespace zima {
 
 class GlobalJsonConfig {
-  DECLARE_SINGLETON(GlobalJsonConfig)
+    DECLARE_SINGLETON(GlobalJsonConfig)
 
- public:
-  bool ParseFromJson(const JsonSPtr& json);
-  bool GetGlobalConfig(JsonSPtr& config);
-  bool GetGlobalConfigObject(const std::string& name, JsonSPtr& object);
+  public:
+    bool ParseFromJson(const JsonSPtr &json);
+    bool GetGlobalConfig(JsonSPtr &config);
+    bool GetGlobalConfigObject(const std::string &name, JsonSPtr &object);
 
-  std::string GetConfigVersion();
-  std::string GetConfigDescription();
+    std::string GetConfigVersion();
+    std::string GetConfigDescription();
 
- private:
-  bool LoadFromFile();
+  private:
+    bool LoadFromFile();
 
-  ReadWriteLock::SPtr access_;
+    ReadWriteLock::SPtr access_;
 
-  const std::string kConfigFilePath_ = "/tmp/";
-  const std::string kConfigFileName_ = "zima_config.json";
-  const std::string kConfigKey_ = "zima global config";
-  const std::string kVersionName_ = "config version";
-  const std::string KdescriptionName_ = "config description";
+    const std::string kConfigFilePath_ = "/tmp/";
+    const std::string kConfigFileName_ = "zima_config.json";
+    const std::string kConfigKey_ = "zima global config";
+    const std::string kVersionName_ = "config version";
+    const std::string KdescriptionName_ = "config description";
 
-  JsonSPtr global_json_config_;
+    JsonSPtr global_json_config_;
 
-  std::string version_;
-  std::string description_;
+    std::string version_;
+    std::string description_;
 };
 
-}  // namespace zima
+} // namespace zima
 
-#endif  // ZIMA_JSON_H
+#endif // ZIMA_JSON_H

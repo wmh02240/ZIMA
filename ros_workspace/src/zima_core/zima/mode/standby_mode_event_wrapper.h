@@ -13,23 +13,20 @@
 namespace zima {
 
 class StandbyModeWrapper : public ModeEventWrapperBase {
- public:
-  StandbyModeWrapper(const Chassis::SPtr& chassis,
-                     const ChassisController::SPtr& chassis_controller,
-                     const SlamBase::SPtr& slam_wrapper);
-  ~StandbyModeWrapper();
+  public:
+    StandbyModeWrapper(const Chassis::SPtr &chassis, const ChassisController::SPtr &chassis_controller, const SlamBase::SPtr &slam_wrapper);
+    ~StandbyModeWrapper();
 
-  void Run(OperationData::SPtr& operation_data,
-           const SlamBase::SPtr& slam_wrapper) override;
+    void Run(OperationData::SPtr &operation_data, const SlamBase::SPtr &slam_wrapper) override;
 
- private:
-  void InitializeForCallBack();
+  private:
+    void InitializeForCallBack();
 
-  void PrintInfo();
+    void PrintInfo();
 
-  StandbyMode::SPtr standby_mode_;
+    StandbyMode::SPtr standby_mode_;
 };
 
-}  // namespace zima
+} // namespace zima
 
-#endif  // ZIMA_STANDBY_MODE_WRAPPER_H
+#endif // ZIMA_STANDBY_MODE_WRAPPER_H

@@ -27,16 +27,13 @@ class ZimaGazeboNode : public ZimaNode {
     ~ZimaGazeboNode();
 
     void GazeboPublishChassisControl();
-
     void GazeboGroundTruthOdomCb(const nav_msgs::Odometry::ConstPtr &msg);
     void GazeboRobotScanCb(const sensor_msgs::LaserScan::ConstPtr &msg);
     void GazeboClockCb(const rosgraph_msgs::Clock::ConstPtr &msg);
     void GazeboGeneralBumperCb(const gazebo_msgs::ContactsState::ConstPtr &msg);
     void GazeboLeftWallSensorCb(const sensor_msgs::LaserScan::ConstPtr &msg);
     void GazeboRightWallSensorCb(const sensor_msgs::LaserScan::ConstPtr &msg);
-
     bool ProcessData(uint32_t &map_seq, std::shared_ptr<Timer> &process_map_timer) override;
-
     void Run(const ZimaThreadWrapper::ThreadParam &param);
 
   private:

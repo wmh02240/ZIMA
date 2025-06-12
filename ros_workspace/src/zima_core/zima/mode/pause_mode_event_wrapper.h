@@ -13,27 +13,23 @@
 namespace zima {
 
 class PauseModeWrapper : public ModeEventWrapperBase {
- public:
-  PauseModeWrapper(const Chassis::SPtr& chassis,
-                   const ChassisController::SPtr& chassis_controller,
-                   const SlamBase::SPtr& slam_wrapper,
-                   const OperationData::SPtr& operation_data,
-                   const bool& use_simple_slam = true);
-  ~PauseModeWrapper();
+  public:
+    PauseModeWrapper(const Chassis::SPtr &chassis, const ChassisController::SPtr &chassis_controller, const SlamBase::SPtr &slam_wrapper,
+                     const OperationData::SPtr &operation_data, const bool &use_simple_slam = true);
+    ~PauseModeWrapper();
 
-  void Run(OperationData::SPtr& operation_data,
-           const SlamBase::SPtr& slam_wrapper) override;
+    void Run(OperationData::SPtr &operation_data, const SlamBase::SPtr &slam_wrapper) override;
 
- private:
-  void InitializeForCallBack();
+  private:
+    void InitializeForCallBack();
 
-  void PrintInfo();
+    void PrintInfo();
 
-  ModeLabel GenerateNextMode(const OperationData::SPtr& operation_data);
+    ModeLabel GenerateNextMode(const OperationData::SPtr &operation_data);
 
-  PauseMode::SPtr pause_mode_;
+    PauseMode::SPtr pause_mode_;
 };
 
-}  // namespace zima
+} // namespace zima
 
-#endif  // ZIMA_PAUSE_MODE_WRAPPER_H
+#endif // ZIMA_PAUSE_MODE_WRAPPER_H

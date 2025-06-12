@@ -13,24 +13,22 @@
 namespace zima {
 
 class StandbyMode : public ModeBase {
- public:
-  StandbyMode(const Chassis::SPtr& chassis,
-            const ChassisController::SPtr& chassis_controller,
-            const SlamBase::SPtr& slam_wrapper);
-  ~StandbyMode();
+  public:
+    StandbyMode(const Chassis::SPtr &chassis, const ChassisController::SPtr &chassis_controller, const SlamBase::SPtr &slam_wrapper);
+    ~StandbyMode();
 
-  using SPtr = std::shared_ptr<StandbyMode>;
+    using SPtr = std::shared_ptr<StandbyMode>;
 
-  void Run(const OperationData::SPtr& operation_data) override;
+    void Run(const OperationData::SPtr &operation_data) override;
 
-  void Start();
+    void Start();
 
- private:
-  bool start_request_;
+  private:
+    bool start_request_;
 
-  SlamBase::SPtr slam_wrapper_;
+    SlamBase::SPtr slam_wrapper_;
 };
 
-}  // namespace zima
+} // namespace zima
 
-#endif  // ZIMA_STANDBY_MODE_H
+#endif // ZIMA_STANDBY_MODE_H

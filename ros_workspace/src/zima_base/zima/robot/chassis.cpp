@@ -68,8 +68,6 @@ bool Chassis::Config::ParseFromJson(const JsonSPtr &json) {
     return true;
 }
 
-// Chassis::Chassis() : config_(nullptr) {}
-
 Chassis::Chassis(const Config &config) : config_(config), ready_(false), stall_test_running_(false) {}
 
 void Chassis::Initialize() {

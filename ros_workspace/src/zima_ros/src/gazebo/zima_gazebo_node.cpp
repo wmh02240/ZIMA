@@ -4,10 +4,9 @@
  * Released under the [MIT] License.
  */
 
-#include "gazebo/zima_gazebo_node.h"
-
 #include <random>
 
+#include "gazebo/zima_gazebo_node.h"
 #include "zima/hal/system/cpu.h"
 #include "zima_ros/util.h"
 
@@ -125,7 +124,7 @@ void ZimaGazeboNode::GazeboRightWallSensorCb(const sensor_msgs::LaserScan::Const
 
 bool ZimaGazeboNode::ProcessData(uint32_t &map_seq, std::shared_ptr<Timer> &process_map_timer) {
     bool ret = false;
-    // Process ground truth odom msgs.
+    // Process ground truth odom msgs. 处理里程计消息
     {
         WriteLocker lock(receive_msg_list_lock_);
         if (!receive_ground_truth_odom_msg_list_.empty()) {
@@ -136,9 +135,7 @@ bool ZimaGazeboNode::ProcessData(uint32_t &map_seq, std::shared_ptr<Timer> &proc
             auto &tf_manager = *TransformManager::Instance();
             auto recv_odom_point = zima_ros::OdometryToMapPoint(*msg);
             // ZINFO << "Receive odom: " << recv_odom_point.DebugString();
-            // ZINFO << "Get Linear x: " << msg->twist.twist.linear.x
-            //       << ", y: " << msg->twist.twist.linear.y
-            //       << ", angular: " << msg->twist.twist.angular.z;
+            // ZINFO << "Get Linear x: " << msg->twist.twist.linear.x << ", y: " << msg->twist.twist.linear.y << ", angular: " << msg->twist.twist.angular.z;
 
             auto now_time = msg->header.stamp.toSec();
             if (last_recv_odom_point_ == nullptr) {
@@ -155,10 +152,8 @@ bool ZimaGazeboNode::ProcessData(uint32_t &map_seq, std::shared_ptr<Timer> &proc
                 auto x_offset_in_robot_frame = speed_x * time_offset;
                 auto y_offset_in_robot_frame = speed_y * time_offset;
 
-                // auto twist_angular_z =
-                //     (right_speed - left_speed) / chassis_->GetTrackLength();
-                // auto degree_offset_in_robot_frame =
-                //     RadiansToDegrees(twist_angular_z * time_offset);
+                // auto twist_angular_z = (right_speed - left_speed) / chassis_->GetTrackLength();
+                // auto degree_offset_in_robot_frame = RadiansToDegrees(twist_angular_z * time_offset);
 
                 tf_manager.UpdateTransform(tf_manager.kOdomFrame_, tf_manager.kRobotFrame_, MapPoint(x_offset_in_robot_frame, y_offset_in_robot_frame, 0));
             } else {
@@ -190,7 +185,6 @@ bool ZimaGazeboNode::ProcessData(uint32_t &map_seq, std::shared_ptr<Timer> &proc
 
             Transform new_odom_tf("", "");
             tf_manager.GetTransform(tf_manager.kOdomFrame_, tf_manager.kRobotFrame_, new_odom_tf);
-
             chassis_->GetGyro(chassis_->kGyro_)->SetDegree(new_odom_tf.Degree(), Time::Now());
 
             MapPoint new_odom_point(new_odom_tf.X(), new_odom_tf.Y(), new_odom_tf.Degree());
@@ -212,13 +206,12 @@ bool ZimaGazeboNode::ProcessData(uint32_t &map_seq, std::shared_ptr<Timer> &proc
             odom_msg_template_.reset(new nav_msgs::Odometry(*msg));
             latest_ground_truth_odom_.reset(new nav_msgs::Odometry(*msg));
             auto ground_truth_odom_point = zima_ros::OdometryToMapPoint(*latest_ground_truth_odom_);
-            // ZINFO << "Receive ground truth odom: "
-            //       << ground_truth_odom_point.DebugString();
+            // ZINFO << "Receive ground truth odom: " << ground_truth_odom_point.DebugString();
             ret = true;
         }
     }
 
-    // Process scan msgs.
+    // Process scan msgs. 处理激光消息
     {
         WriteLocker lock(receive_msg_list_lock_);
         if (!receive_scan_msg_list_.empty()) {
@@ -229,6 +222,7 @@ bool ZimaGazeboNode::ProcessData(uint32_t &map_seq, std::shared_ptr<Timer> &proc
             sensor_msgs::LaserScan::Ptr _scan_msg(new sensor_msgs::LaserScan(*msg));
             _scan_msg->scan_time = _scan_msg->header.stamp.toSec() - last_scan_msg_time;
             // ZINFO << "Scan time: " << FloatToString(_scan_msg->scan_time, 4);
+            // 添加噪声模拟
             if (enable_lidar_noise_) {
                 std::random_device _random_device;
                 std::default_random_engine _default_random_engine(_random_device());
@@ -242,6 +236,7 @@ bool ZimaGazeboNode::ProcessData(uint32_t &map_seq, std::shared_ptr<Timer> &proc
             {
                 WriteLocker publish_scan_msg_lock(publish_scan_msg_access_);
                 publish_scan_msg_ = _scan_msg;
+                // 半视场模拟
                 if (FLAGS_run_with_half_scan) {
                     for (uint i = 0; i < publish_scan_msg_->ranges.size(); i++) {
                         auto degree = RadiansToDegrees(publish_scan_msg_->angle_min + publish_scan_msg_->angle_increment * i);
@@ -251,6 +246,8 @@ bool ZimaGazeboNode::ProcessData(uint32_t &map_seq, std::shared_ptr<Timer> &proc
                     }
                 }
             }
+
+            // 转换为点云，更新点云到激光坐标系，并推送到slam模块
             auto new_scan = LaserScanToPointCloud(publish_scan_msg_);
             if (new_scan != nullptr) {
                 chassis_->GetLidar(chassis_->kLidar_)->UpdatePointCloudInLidarFrame(new_scan);
@@ -261,7 +258,7 @@ bool ZimaGazeboNode::ProcessData(uint32_t &map_seq, std::shared_ptr<Timer> &proc
         }
     }
 
-    // Process scan msgs.
+    // Process scan msgs. 处理碰撞消息
     {
         WriteLocker lock(receive_msg_list_lock_);
         if (!receive_bumper_msg_list_.empty()) {
@@ -274,9 +271,7 @@ bool ZimaGazeboNode::ProcessData(uint32_t &map_seq, std::shared_ptr<Timer> &proc
                     MapPoint contact_pose(contact_position.x, contact_position.y);
                     double x, y;
                     auto ground_turth_odom_pose = zima_ros::OdometryToMapPoint(*latest_ground_truth_odom_);
-                    // ZINFO << "contact pose " << FloatToString(contact_position.x, 3) <<
-                    // ", "
-                    //       << FloatToString(contact_position.y, 3);
+                    // ZINFO << "contact pose " << FloatToString(contact_position.x, 3) << ", " << FloatToString(contact_position.y, 3);
                     // ZINFO << ground_turth_odom_pose.DebugString();
                     Transform::CoordinateTransformationAB(contact_position.x, contact_position.y, ground_turth_odom_pose.X(), ground_turth_odom_pose.Y(),
                                                           ground_turth_odom_pose.Radian(), x, y);
@@ -325,6 +320,7 @@ bool ZimaGazeboNode::ProcessData(uint32_t &map_seq, std::shared_ptr<Timer> &proc
         }
     }
 
+    // 调研父类ZimaNode::ProcessData处理slam地图, 返回是否有新数据
     ret |= ZimaNode::ProcessData(map_seq, process_map_timer);
     return ret;
 }

@@ -60,8 +60,7 @@ void ZimaKobukiNode::MainThread(const ZimaThreadWrapper::ThreadParam &param) {
             // Test for lidar compensate.
             Time::SleepMSec(20);
 
-            // kobuki_chassis_->GetSerialRef()->SetVelocityCmdByWheel(
-            //     0.15, -0.15, kobuki_chassis_->GetTrackLength());
+            // kobuki_chassis_->GetSerialRef()->SetVelocityCmdByWheel(0.15, -0.15, kobuki_chassis_->GetTrackLength());
 
             if (compensate_point_cloud_timer->TimeUp()) {
                 auto point_cloud_in_lidar_frame = chassis_->GetLidar(chassis_->kLidar_)->GetPointCloudInLidarFrame();
@@ -190,7 +189,6 @@ int main(int argc, char **argv) {
     google::InstallFailureSignalHandler();
 
     ros::init(argc, argv, "zima_matcher_kobuki_test");
-
     ros::NodeHandle priv_nh("~");
     std::string port;
     priv_nh.param("port", port, std::string("/dev/ttyS1"));
@@ -215,7 +213,6 @@ int main(int argc, char **argv) {
     test.Shutdown();
 
     // Exiting.
-
     const double wait_for_exit_timeout_s = 1;
     thread_manager->WaitForThreadExit(ros_thread_param.thread_name_, wait_for_exit_timeout_s);
     thread_manager->WaitForThreadExit(core_thread_param.thread_name_, wait_for_exit_timeout_s);

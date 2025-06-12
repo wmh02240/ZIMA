@@ -21,8 +21,8 @@ class ZimaThreadWrapper {
     class ThreadParam {
       public:
         ThreadParam();
-        ThreadParam(const std::string &name, const int16_t &bind_cpu_id, const int16_t &priority,
-                    const double &cycle_warning_period, const double &cycle_error_period);
+        ThreadParam(const std::string &name, const int16_t &bind_cpu_id, const int16_t &priority, const double &cycle_warning_period,
+                    const double &cycle_error_period);
         ~ThreadParam();
 
         std::string thread_name_;
@@ -78,8 +78,7 @@ class ZimaThreadManager {
     // Functions for thread management. These functions should be call by logic
     // OUTSIDE thread.
     bool RegisterThread(std::thread &&thread, const ZimaThreadWrapper::ThreadParam &param);
-    bool MarkThreadExited(const std::string &thread_name, const std::string &file, const std::string &function,
-                          const uint32_t &line);
+    bool MarkThreadExited(const std::string &thread_name, const std::string &file, const std::string &function, const uint32_t &line);
     bool IsThreadRunning(const std::string &thread_name);
     bool WaitForThreadExit(const std::string &thread_name, const double &timeout_s);
 
