@@ -2,6 +2,7 @@
  * This file is part of Project Zima.
  * Copyright © 2022-2025 Austin Liu.
  * Released under the [MIT] License.
+ * 该类是Zima ROS节点的核心类，负责初始化、处理流转、传感器与底盘管理、slam、导航、清扫等核心功能的调度和接口。
  */
 
 #include "zima_ros/zima_node.h"
@@ -978,6 +979,7 @@ void ZimaNode::ROSSpinThread(const ZimaThreadWrapper::ThreadParam &param) {
         thread_manager->BindCPUCore(param.thread_name_, param.bind_cpu_id_);
     }
 
+    // 让节点持续处理ros的订阅、服务、定时器等回调，保证ros系统的正常通信
     while (ros::ok()) {
         thread_manager->UpdateThreadCycle(param.thread_name_);
         ros::spinOnce();
@@ -996,7 +998,7 @@ void ZimaNode::TfThread(const ZimaThreadWrapper::ThreadParam &param) {
         thread_manager->BindCPUCore(param.thread_name_, param.bind_cpu_id_);
     }
 
-    // For gazebo.
+    // For gazebo. 仿真时间同步
     if (use_sim_time_) {
         while (!shutdown_request_ && !sim_time_received_.load()) {
             thread_manager->UpdateThreadCycle(param.thread_name_);
@@ -1006,8 +1008,8 @@ void ZimaNode::TfThread(const ZimaThreadWrapper::ThreadParam &param) {
         ZGINFO << "Sim time received.";
     }
 
-    tf::TransformListener listener;
-    tf::StampedTransform correction;
+    tf::TransformListener listener;  // 坐标系监听
+    tf::StampedTransform correction; // 位姿修正量
     // tf::StampedTransform pose;
     MapPoint last_correction;
     auto &tf_manager = *TransformManager::Instance();
@@ -1018,87 +1020,74 @@ void ZimaNode::TfThread(const ZimaThreadWrapper::ThreadParam &param) {
         // Subscribe to external transform correction.
         if (!use_simple_slam_) {
             try {
+                // 监听world-odom坐标变换
                 listener.waitForTransform(tf_manager.kWorldFrame_, tf_manager.kOdomFrame_, ros::Time(0), ros::Duration(0.2));
                 listener.lookupTransform(tf_manager.kWorldFrame_.substr(1), tf_manager.kOdomFrame_.substr(1), ros::Time(0), correction);
-                // listener.waitForTransform(tf_manager.kWorldFrame_,
-                //                           tf_manager.kRobotFrame_,
-                //                           ros::Time(0), ros::Duration(0.2));
-                // listener.lookupTransform(tf_manager.kWorldFrame_.substr(1),
-                //                           tf_manager.kRobotFrame_.substr(1),
-                //                          ros::Time(0), pose);
+                // listener.waitForTransform(tf_manager.kWorldFrame_, tf_manager.kRobotFrame_, ros::Time(0), ros::Duration(0.2));
+                // listener.lookupTransform(tf_manager.kWorldFrame_.substr(1), tf_manager.kRobotFrame_.substr(1), ros::Time(0), pose);
             } catch (tf::TransformException &ex) {
                 ZERROR << ex.what();
                 Time::SleepSec(duration);
                 continue;
             }
-            // ZINFO << "Ros pose: " <<
-            // zima_ros::TFTransformToMapPoint(pose).DebugString();
+            // ZINFO << "Ros pose: " << zima_ros::TFTransformToMapPoint(pose).DebugString();
             auto correction_point = zima_ros::TFTransformToMapPoint(correction);
             if (!DoubleEqual(correction_point.X(), last_correction.X()) || !DoubleEqual(correction_point.Y(), last_correction.Y()) ||
                 !DoubleEqual(correction_point.Degree(), last_correction.Degree())) {
                 // ZWARN << "Correction: " << correction_point.DebugString();
                 Transform new_correction_tf(tf_manager.kWorldFrame_, tf_manager.kOdomFrame_, correction_point.X(), correction_point.Y(),
                                             correction_point.Degree());
-                tf_manager.UpdateTransform(new_correction_tf);
+                tf_manager.UpdateTransform(new_correction_tf); // 只有修正量发生变换时更新到 TransformManager的TF管理器中
                 last_correction = correction_point;
             }
         } else {
             // Transform odom_tf("", "");
-            // tf_manager.GetTransform(tf_manager.kOdomFrame_, tf_manager.kRobotFrame_,
-            //                         odom_tf);
+            // tf_manager.GetTransform(tf_manager.kOdomFrame_, tf_manager.kRobotFrame_, odom_tf);
             // MapPoint odom_pose(odom_tf.X(), odom_tf.Y(), odom_tf.Degree());
 
-            // // We hav P(world) as robot world pose, P(odom) as robot odom
-            // // pose. And we need to calculate transform between world frame
-            // // and odom frame.
-            // // In order to use Transform::CoordinateTransformationXX
-            // // function and for more comprehensible, firstly we inversly
-            // // calculate the coordinate of origin point of odom frme on
-            // // "pose frame". Then we get full transform chain from 'world'
-            // // to 'pose' to 'odom'.
+            /*
+             * We hav P(world) as robot world pose, P(odom) as robot odom pose. And we need to calculate
+             * transform between world frame and odom frame.
+             * In order to use Transform::CoordinateTransformationXX function and for more comprehensible,
+             * firstly we inversly calculate the coordinate of origin point of odom frme on "pose frame".
+             * Then we get full transform chain from 'world' to 'pose' to 'odom'.
+             */
+
             // MapPoint odom_origin_on_odom_pose_coordinate;
             // {
-            //   odom_origin_on_odom_pose_coordinate.SetDegree(-odom_pose.Degree());
-            //   double x, y;
-            //   Transform::CoordinateTransformationAB(
-            //       0, 0, odom_pose.X(), odom_pose.Y(),
-            //       DegreesToRadians(odom_pose.Degree()), x, y);
-            //   odom_origin_on_odom_pose_coordinate.SetX(x);
-            //   odom_origin_on_odom_pose_coordinate.SetY(y);
+            //     odom_origin_on_odom_pose_coordinate.SetDegree(-odom_pose.Degree());
+            //     double x, y;
+            //     Transform::CoordinateTransformationAB(0, 0, odom_pose.X(), odom_pose.Y(), DegreesToRadians(odom_pose.Degree()), x, y);
+            //     odom_origin_on_odom_pose_coordinate.SetX(x);
+            //     odom_origin_on_odom_pose_coordinate.SetY(y);
             // }
             // auto slam = dynamic_pointer_cast<SimpleSlam>(slam_wrapper_);
             // auto world_pose = slam->GetLastWorldPose();
             // ZINFO << "World pose: " << world_pose.DebugString();
             // MapPoint odom_origin_on_world_coordinate;
             // {
-            //   odom_origin_on_world_coordinate.SetDegree(
-            //       world_pose.Degree() +
-            //       odom_origin_on_odom_pose_coordinate.Degree());
-            //   double x, y;
-            //   Transform::CoordinateTransformationBA(
-            //       odom_origin_on_odom_pose_coordinate.X(),
-            //       odom_origin_on_odom_pose_coordinate.Y(), world_pose.X(),
-            //       world_pose.Y(), DegreesToRadians(world_pose.Degree()), x, y);
-            //   odom_origin_on_world_coordinate.SetX(x);
-            //   odom_origin_on_world_coordinate.SetY(y);
+            //     odom_origin_on_world_coordinate.SetDegree(world_pose.Degree() + odom_origin_on_odom_pose_coordinate.Degree());
+            //     double x, y;
+            //     Transform::CoordinateTransformationBA(odom_origin_on_odom_pose_coordinate.X(), odom_origin_on_odom_pose_coordinate.Y(), world_pose.X(),
+            //                                           world_pose.Y(), DegreesToRadians(world_pose.Degree()), x, y);
+            //     odom_origin_on_world_coordinate.SetX(x);
+            //     odom_origin_on_world_coordinate.SetY(y);
             // }
 
             // {
-            //   auto correction = odom_origin_on_world_coordinate;
-            //   // ZINFO << "correction: " << correction_.DebugString();
-            //   Transform correction_tf(tf_manager.kWorldFrame_, tf_manager.kOdomFrame_,
-            //                           correction.X(), correction.Y(),
-            //                           correction.Degree());
-            //   tf_manager.UpdateTransform(correction_tf);
+            //     auto correction = odom_origin_on_world_coordinate;
+            //     // ZINFO << "correction: " << correction_.DebugString();
+            //     Transform correction_tf(tf_manager.kWorldFrame_, tf_manager.kOdomFrame_, correction.X(), correction.Y(), correction.Degree());
+            //     tf_manager.UpdateTransform(correction_tf);
             // }
 
             Transform correction_tf("", "");
-            tf_manager.GetTransform(tf_manager.kWorldFrame_, tf_manager.kOdomFrame_, correction_tf);
+            tf_manager.GetTransform(tf_manager.kWorldFrame_, tf_manager.kOdomFrame_, correction_tf); // 直接获取world-odom的坐标系变换
             MapPoint correction(correction_tf.X(), correction_tf.Y(), correction_tf.Degree());
             auto correction_ros_tf = MapPointToTFTransform(correction);
             auto now = ros::Time::now();
             PublishTf(zima_ros::GeometryTransformToStampedTransform(now, tf_manager.kWorldFrame_, tf_manager.kOdomFrame_,
-                                                                    zima_ros::TFToGeometryMsgTransform(correction_ros_tf)));
+                                                                    zima_ros::TFToGeometryMsgTransform(correction_ros_tf))); // 发布tf到ros系统
         }
         Time::SleepSec(duration);
     }
@@ -1109,6 +1098,7 @@ void ZimaNode::TfThread(const ZimaThreadWrapper::ThreadParam &param) {
 }
 
 void ZimaNode::PublishSensorDataThread(const ZimaThreadWrapper::ThreadParam &param) {
+    // 定时发布与传感器相关的数据，例如里程计、激光雷达点云等，以保证机器人状态和传感器信息能够被ros其他节点获取
     ZGINFO << "Thread \"" << param.thread_name_ << "\" start.";
     auto thread_manager = ZimaThreadManager::Instance();
     if (param.bind_cpu_id_ >= 0) {
@@ -1129,18 +1119,20 @@ void ZimaNode::PublishSensorDataThread(const ZimaThreadWrapper::ThreadParam &par
     uint32_t published_point_cloud_in_world_frame_index = 0;
     const float duration = 0.02;
     while (!shutdown_request_) {
-        thread_manager->UpdateThreadCycle(param.thread_name_);
+        thread_manager->UpdateThreadCycle(param.thread_name_); // 每次循环时先更新线程周期信息，便于监控
         Time::SleepSec(duration);
+        // 仅当slam_wrapper_正在运行时才发布传感器数据
         if (slam_wrapper_->IsRunning()) {
-            PublishOdom();
+            PublishOdom(); // 发布里程计信息,即机器人当前位姿
             if (Time::Now() - slam_wrapper_->GetStartOrResumeTimeStamp() > 0.4) {
-                PublishScan();
+                PublishScan(); // slam启动0.4秒后才开始发布激光雷达点云数据
             }
 
+            // 调试模式
             if (FLAGS_debug_enable) {
                 uint32_t seq = 0;
                 if (chassis_->GetLidar(chassis_->kLidar_)->GetPointCloudSeq(seq) && seq != published_point_cloud_in_chassis_frame_index) {
-                    auto point_cloud = chassis_->GetLidar(chassis_->kLidar_)->GetPointCloudInChassisFrame();
+                    auto point_cloud = chassis_->GetLidar(chassis_->kLidar_)->GetPointCloudInChassisFrame(); // 车体坐标系下的点云
                     if (point_cloud != nullptr) {
                         PublishPointCloudInChassisFrame(point_cloud);
                         // ZINFO << "Publish point cloud.";
@@ -1149,7 +1141,7 @@ void ZimaNode::PublishSensorDataThread(const ZimaThreadWrapper::ThreadParam &par
                 }
 
                 if (use_simple_slam_) {
-                    auto point_cloud = slam_wrapper_->GetLastMatchPointCloudInWorldFrame();
+                    auto point_cloud = slam_wrapper_->GetLastMatchPointCloudInWorldFrame(); // 世界坐标系下的点云
                     if (point_cloud != nullptr && point_cloud->GetSeq() != published_point_cloud_in_world_frame_index) {
                         PublishPointCloudInWorldFrame(point_cloud);
                         published_point_cloud_in_world_frame_index = point_cloud->GetSeq();
@@ -1165,6 +1157,7 @@ void ZimaNode::PublishSensorDataThread(const ZimaThreadWrapper::ThreadParam &par
 }
 
 void ZimaNode::DataProcessThread(const ZimaThreadWrapper::ThreadParam &param) {
+    // 周期性处理与地图、传感器、状态相关的数据融合，分析、预处理等任务
     ZGINFO << "Thread \"" << param.thread_name_ << "\" start.";
     auto thread_manager = ZimaThreadManager::Instance();
     if (param.bind_cpu_id_ >= 0) {
@@ -1185,10 +1178,11 @@ void ZimaNode::DataProcessThread(const ZimaThreadWrapper::ThreadParam &param) {
     std::shared_ptr<Timer> process_map_timer(new Timer("process data timer", 2, true, true));
 
     while (!shutdown_request_) {
-        thread_manager->UpdateThreadCycle(param.thread_name_);
+        thread_manager->UpdateThreadCycle(param.thread_name_); // 更新线程周期信息，便于监控
         const float duration = 0.001;
         Time::SleepSec(duration);
 
+        // 调用该函数处理一次数据，map_seq用于追踪地图序列， process_map_timer用于计时和性能统计
         if (!ProcessData(map_seq, process_map_timer)) {
         }
     }
@@ -1216,7 +1210,7 @@ void ZimaNode::PublishForRvizThread(const ZimaThreadWrapper::ThreadParam &param)
     }
 
     auto &tf = *TransformManager::Instance();
-
+    // 多个定时器控制不同类型的数据发布频率
     Timer publish_map_timer("publish map timer", 5, true, true, true);
     Timer publish_info_timer("Publish info timer", 5, true, true, true);
     Timer debug_memory_use_timer("Debug memory use", 3, true, true, true);
@@ -1227,24 +1221,25 @@ void ZimaNode::PublishForRvizThread(const ZimaThreadWrapper::ThreadParam &param)
         const float duration = 0.02;
         Time::SleepSec(duration);
 
+        // TimeUp函数用于判断定时器是否到达设定的时间间隔，如果到达则执行相应的发布操作
         if (publish_info_timer.TimeUp()) {
             ReadLocker lock(operation_data_access_);
-            auto operation_data = operation_data_;
+            auto operation_data = operation_data_; // 核心业务数据：例如清扫进度
             lock.Unlock();
             if (operation_data != nullptr) {
                 ZINFO << operation_data->DebugOperationInfo();
                 if (FLAGS_debug_enable) {
-                    PublishMap(operation_data->GetNavMapRef()->GetPrintLayer(), MapType::kPrintMap);
+                    PublishMap(operation_data->GetNavMapRef()->GetPrintLayer(), MapType::kPrintMap); // 导航地图的打印层，例如已清扫已覆盖区域
                     Time::SleepMSec(50);
                 }
-                PublishMap(operation_data->GetNavMapRef()->GetUserBlockLayer(), MapType::kUserAreaMap);
+                PublishMap(operation_data->GetNavMapRef()->GetUserBlockLayer(), MapType::kUserAreaMap); // 发布用户自定义区域图，例如虚拟墙、禁区等
                 Time::SleepMSec(50);
                 auto all_steps = operation_data->GetAllSteps();
-                PublishPath(operation_data->GetNavMapRef()->GetPrintLayer(), all_steps);
+                PublishPath(operation_data->GetNavMapRef()->GetPrintLayer(), all_steps); // 发布清扫路径
                 Time::SleepMSec(50);
-                auto step_area = operation_data->GetNavMapRef()->GetStepAreaSize();
+                auto step_area = operation_data->GetNavMapRef()->GetStepAreaSize(); // 清扫面积
                 PublishCleaningInfo(operation_data->GetOptimizedSlamValueGridMap2DRef(), step_area, operation_data->GetDuration() / 60);
-                PublishUnderLayerMap(operation_data->GetOptimizedSlamValueGridMap2DRef());
+                PublishUnderLayerMap(operation_data->GetOptimizedSlamValueGridMap2DRef()); // slam优化后的地图，用于底层渲染
             }
             publish_info_timer.Reset();
         }
@@ -1255,13 +1250,13 @@ void ZimaNode::PublishForRvizThread(const ZimaThreadWrapper::ThreadParam &param)
             lock.Unlock();
 
             if (operation_data != nullptr) {
-                PublishMap(operation_data->GetNavMapConstRef()->GetSlamLayer(), MapType::kSlamCharMap);
+                PublishMap(operation_data->GetNavMapConstRef()->GetSlamLayer(), MapType::kSlamCharMap); // 发布字符型slam地图，占用/空闲/未知，适合直观展示
                 Time::SleepMSec(50);
-                PublishMap(operation_data->GetNavMapConstRef()->GetRoomLayer(), MapType::kRoomMap);
+                PublishMap(operation_data->GetNavMapConstRef()->GetRoomLayer(), MapType::kRoomMap); // 房间分割、区域识别算法计算的房间分区地图
                 Time::SleepMSec(50);
 
                 if (FLAGS_debug_enable) {
-                    PublishSlamValueMap(ros::Time(), operation_data->GetRawSlamValueGridMap2DRef());
+                    PublishSlamValueMap(ros::Time(), operation_data->GetRawSlamValueGridMap2DRef()); // 发布原始slam概率值地图，显示每个栅格概率值方便调试
                     Time::SleepMSec(50);
                 }
             }
@@ -1288,7 +1283,7 @@ void ZimaNode::PublishForRvizThread(const ZimaThreadWrapper::ThreadParam &param)
         tf.GetTransform(tf.kOdomFrame_, tf.kRobotFrame_, robot_tf);
         MapPoint odom_pose(robot_tf.X(), robot_tf.Y(), robot_tf.Degree());
 
-        PublishRobot(world_pose);
+        PublishRobot(world_pose); // 发布机器人位姿
         PublishWallSensor(world_pose);
     }
 

@@ -61,7 +61,6 @@ class ZimaNode {
     void PublishPointCloudInChassisFrame(const PointCloud::SPtr &point_cloud_in_chassis_frame);
     void PublishPointCloudInWorldFrame(const PointCloud::SPtr &point_cloud_in_world_frame);
     void PublishLineSegments(const LineSegments &line_segments, const std::string &name_space);
-
     void PublishTf(const geometry_msgs::TransformStamped &tf);
 
     void SlamMapCb(const nav_msgs::OccupancyGrid::ConstPtr &msg);
@@ -79,7 +78,6 @@ class ZimaNode {
     virtual bool ProcessData(uint32_t &map_seq, std::shared_ptr<Timer> &process_map_timer);
 
     void Run(const ZimaThreadWrapper::ThreadParam &param);
-
     void Shutdown();
 
   protected:

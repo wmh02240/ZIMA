@@ -24,74 +24,72 @@
 namespace zima {
 
 class MergedOdomData {
- public:
-  MergedOdomData() = delete;
-  MergedOdomData(const double& timestamp, const MapPoint& pose);
-  MergedOdomData(const double& timestamp, const MapPoint& pose,
-               const MapPoint& velocity);
-  ~MergedOdomData() = default;
+  public:
+    MergedOdomData() = delete;
+    MergedOdomData(const double &timestamp, const MapPoint &pose);
+    MergedOdomData(const double &timestamp, const MapPoint &pose, const MapPoint &velocity);
+    ~MergedOdomData() = default;
 
-  using SPtr = std::shared_ptr<MergedOdomData>;
+    using SPtr = std::shared_ptr<MergedOdomData>;
 
-  double GetTimeStamp() const { return timestamp_; }
-  MapPoint GetPose() const { return pose_; }
-  bool IsVelocityValid() const { return is_velocity_valid_; }
-  MapPoint GetVelocity() const { return velocity_; }
+    double GetTimeStamp() const { return timestamp_; }
+    MapPoint GetPose() const { return pose_; }
+    bool IsVelocityValid() const { return is_velocity_valid_; }
+    MapPoint GetVelocity() const { return velocity_; }
 
-  std::string DebugString() const;
+    std::string DebugString() const;
 
- private:
-  const double timestamp_;
-  const MapPoint pose_;
-  const bool is_velocity_valid_;
-  // Velocity is for per second.
-  const MapPoint velocity_;
+  private:
+    const double timestamp_;
+    const MapPoint pose_;
+    const bool is_velocity_valid_;
+    // Velocity is for per second.
+    const MapPoint velocity_;
 };
 
 class DeviceManager {
- public:
-  using SPtr = std::shared_ptr<DeviceManager>;
+  public:
+    using SPtr = std::shared_ptr<DeviceManager>;
 
-  Battery::SPtr GetBattery(const std::string& name) const;
-  Bumper::SPtr GetBumper(const std::string& name) const;
-  Button::SPtr GetButton(const std::string& name) const;
-  Wheel::SPtr GetWheel(const std::string& name) const;
-  WallSensor::SPtr GetWallSensor(const std::string& name) const;
-  Gyro::SPtr GetGyro(const std::string& name) const;
-  Lidar::SPtr GetLidar(const std::string& name) const;
+    Battery::SPtr GetBattery(const std::string &name) const;
+    Bumper::SPtr GetBumper(const std::string &name) const;
+    Button::SPtr GetButton(const std::string &name) const;
+    Wheel::SPtr GetWheel(const std::string &name) const;
+    WallSensor::SPtr GetWallSensor(const std::string &name) const;
+    Gyro::SPtr GetGyro(const std::string &name) const;
+    Lidar::SPtr GetLidar(const std::string &name) const;
 
-  bool IsDeviceRegistered(const std::string& name) const;
+    bool IsDeviceRegistered(const std::string &name) const;
 
-  DECLARE_DATA_GET_SET(MergedOdomData::SPtr, MergedOdomData);
-  double GetMergedOdomDataTimeStamp() const;
-  bool CheckMergedOdomDataFresh(const double& limit) const;
+    DECLARE_DATA_GET_SET(MergedOdomData::SPtr, MergedOdomData);
+    double GetMergedOdomDataTimeStamp() const;
+    bool CheckMergedOdomDataFresh(const double &limit) const;
 
- protected:
-  DeviceManager();
-  ~DeviceManager() = default;
+  protected:
+    DeviceManager();
+    ~DeviceManager() = default;
 
-  void InitializeBattery(const std::vector<Battery::SPtr>& batteries_info);
-  void InitializeBumper(const std::vector<Bumper::SPtr>& bumpers_info);
-  void InitializeButton(const std::vector<Button::SPtr>& buttons_info);
-  void InitializeWheel(const std::vector<Wheel::SPtr>& wheels_info);
-  void InitializeWallSensor(
-      const std::vector<WallSensor::SPtr>& wall_sensors_info);
-  void InitializeGyro(const std::vector<Gyro::SPtr>& gyros_info);
-  void InitializeLidar(const std::vector<Lidar::SPtr>& lidars_info);
+    void InitializeBattery(const std::vector<Battery::SPtr> &batteries_info);
+    void InitializeBumper(const std::vector<Bumper::SPtr> &bumpers_info);
+    void InitializeButton(const std::vector<Button::SPtr> &buttons_info);
+    void InitializeWheel(const std::vector<Wheel::SPtr> &wheels_info);
+    void InitializeWallSensor(const std::vector<WallSensor::SPtr> &wall_sensors_info);
+    void InitializeGyro(const std::vector<Gyro::SPtr> &gyros_info);
+    void InitializeLidar(const std::vector<Lidar::SPtr> &lidars_info);
 
-  ReadWriteLock::SPtr access_;
+    ReadWriteLock::SPtr access_;
 
-  std::map<std::string, Battery::SPtr> batteries_;
-  std::map<std::string, Bumper::SPtr> bumpers_;
-  std::map<std::string, Button::SPtr> buttons_;
-  std::map<std::string, Wheel::SPtr> wheels_;
-  std::map<std::string, WallSensor::SPtr> wall_sensors_;
-  std::map<std::string, Gyro::SPtr> gyros_;
-  std::map<std::string, Lidar::SPtr> lidars_;
+    std::map<std::string, Battery::SPtr> batteries_;
+    std::map<std::string, Bumper::SPtr> bumpers_;
+    std::map<std::string, Button::SPtr> buttons_;
+    std::map<std::string, Wheel::SPtr> wheels_;
+    std::map<std::string, WallSensor::SPtr> wall_sensors_;
+    std::map<std::string, Gyro::SPtr> gyros_;
+    std::map<std::string, Lidar::SPtr> lidars_;
 
-  MergedOdomData::SPtr merged_odom_data_;
+    MergedOdomData::SPtr merged_odom_data_;
 };
 
-}  // namespace zima
+} // namespace zima
 
-#endif  // ZIMA_DEVICE_MANAGER_H
+#endif // ZIMA_DEVICE_MANAGER_H
