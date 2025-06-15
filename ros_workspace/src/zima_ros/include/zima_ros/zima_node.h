@@ -40,8 +40,6 @@ class ZimaNode {
     virtual void InitForAutoCleaning();
     virtual void InitForRos();
 
-    void PublishCleaningInfo(SlamValueGridMap2D::SPtr map, const float &area, const float &min);
-
     enum MapType {
         kPrintMap,
         kVirtualObsMap,
@@ -49,6 +47,8 @@ class ZimaNode {
         kUserAreaMap,
         kSlamCharMap,
     };
+
+    void PublishCleaningInfo(SlamValueGridMap2D::SPtr map, const float &area, const float &min);
     void PublishMap(CharGridMap2D::SPtr map, const MapType &type, const float &x_offset = 0);
     void PublishUnderLayerMap(SlamValueGridMap2D::SPtr map);
     void PublishPath(CharGridMap2D::SPtr map, const Steps &steps, const float &x_offset = 0);

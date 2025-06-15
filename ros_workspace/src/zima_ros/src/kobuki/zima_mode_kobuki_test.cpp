@@ -14,7 +14,6 @@
 DEFINE_bool(use_simple_slam, false, "Indicator for using simple slam.");
 
 namespace zima_ros {
-
 using namespace zima;
 
 void ZimaKobukiNode::MainThread(const ZimaThreadWrapper::ThreadParam &param) {
@@ -25,7 +24,6 @@ void ZimaKobukiNode::MainThread(const ZimaThreadWrapper::ThreadParam &param) {
     }
 
     ChassisController::SPtr chassis_controller(new ChassisController(chassis_));
-
     ModeSwitcher::SPtr mode_switcher_(new ModeSwitcher());
     ModeEventWrapperBase::SPtr mode_wrapper = nullptr;
 
@@ -47,8 +45,7 @@ void ZimaKobukiNode::MainThread(const ZimaThreadWrapper::ThreadParam &param) {
         auto left_speed = chassis_->GetWheel(chassis_->kLeftWheel_)->TargetSpeed();
         auto right_speed = chassis_->GetWheel(chassis_->kRightWheel_)->TargetSpeed();
 
-        // ZINFO << "Set Left: " << FloatToString(left_speed, 2)
-        //       << ", right: " << FloatToString(right_speed, 2);
+        // ZINFO << "Set Left: " << FloatToString(left_speed, 2) << ", right: " << FloatToString(right_speed, 2);
         kobuki_chassis_->GetSerialRef()->SetVelocityCmdByWheel(left_speed, right_speed, chassis_->GetTrackLength());
 
         {

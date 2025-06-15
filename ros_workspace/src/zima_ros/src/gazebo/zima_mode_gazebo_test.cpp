@@ -2,6 +2,7 @@
  * This file is part of Project Zima.
  * Copyright © 2022-2025 Austin Liu.
  * Released under the [MIT] License.
+ * 系统级仿真、完整的机器人清扫、导航模式流程仿真
  */
 
 #include "gazebo/zima_gazebo_node.h"
@@ -92,7 +93,6 @@ void ZimaGazeboNode::Run(const ZimaThreadWrapper::ThreadParam &param) {
                 }
             }
         }
-
         Time::SleepSec(duration); // 控制循环频率
     }
 
@@ -118,7 +118,7 @@ int main(int argc, char **argv) {
     FLAGS_use_simple_slam = true;
     FLAGS_run_with_half_scan = false;
 
-    ZINFO << zima::GetBaseVersionInfo(); // 打印版本信息
+    ZINFO << zima::GetBaseVersionInfo();
     ZINFO << zima::GetCoreVersionInfo();
 
     // 加载全局配置json信息
@@ -140,30 +140,37 @@ int main(int argc, char **argv) {
     keyboard_listener.Start();
 
     zima_ros::ZimaGazeboNode test(true);
-    // 通过 ZimaThreadManager 启动多个线程，每个线程负责不同的 ROS 功能
+    // 通过 ZimaThreadManager 启动多个线程，每个线程负责不同的 ROS
+    // 功能，且各国线程之间通过共享数据结构(slam_wrapper_、operation_data_等)和线程安全机制(读写锁)进行协作
     auto thread_manager = zima::ZimaThreadManager::Instance();
 
-    // 处理 ROS 消息循环
+    // 作用：处理 ROS 订阅、服务、回调等事件，保证节点能够及时响应传感器的输入、控制指令
+    // 协作：为其他线程提供消息传递和事件触发的基础环境
     zima::ZimaThreadWrapper::ThreadParam ros_thread_param("Ros spin thread", zima::ZimaThreadManager::kMiscThreadIndex_, 100, 0.2, 1);
     thread_manager->RegisterThread(std::thread(&zima_ros::ZimaNode::ROSSpinThread, &test, ros_thread_param), ros_thread_param);
 
-    // 处理 TF 坐标变换相关任务
+    // 作用：处理 TF 坐标变换相关任务、维护机器人各个部件之间的空间关系、例如底盘、激光、地图，为感知、导航模块提供实时坐标变换信息
+    // 协作：为传感器数据发布、可视化等线程提供准确的坐标变换支持
     zima::ZimaThreadWrapper::ThreadParam tf_thread_param("Tf thread", zima::ZimaThreadManager::kMiscThreadIndex_, 100, 0.2, 1);
     thread_manager->RegisterThread(std::thread(&zima_ros::ZimaNode::TfThread, &test, tf_thread_param), tf_thread_param);
 
-    // 发布传感器数据（如里程计、激光等）
+    // 作用：发布传感器数据（如里程计、激光等），将传感器状态实时发布到ros话题，共其他模块使用，例如slam、可视化使用
+    // 协作：为slam、可视化等线程提供实时的传感器输入
     zima::ZimaThreadWrapper::ThreadParam publish_odom_thread_param("Publish sensor data thread", zima::ZimaThreadManager::kMiscThreadIndex_, 100, 0.2, 1);
     thread_manager->RegisterThread(std::thread(&zima_ros::ZimaNode::PublishSensorDataThread, &test, publish_odom_thread_param), publish_odom_thread_param);
 
-    // 发布用于 RViz 可视化的数据
+    // 作用：发布用于 RViz 可视化的数据，机器人状态、地图、路径等
+    // 协作：从operation_data_等共享数据结构中获取最新状态供可视化
     zima::ZimaThreadWrapper::ThreadParam publish_for_rviz_param("Publish for rviz thread", zima::ZimaThreadManager::kMiscThreadIndex_, 100, 0.3, 1);
     thread_manager->RegisterThread(std::thread(&zima_ros::ZimaNode::PublishForRvizThread, &test, publish_for_rviz_param), publish_for_rviz_param);
 
-    // 处理数据相关任务
+    // 作用：处理数据相关任务，对传感器数据、地图数据进行预处理、融合、分析等操作，为核心逻辑和可视化提供支持
+    // 协作：与传感器数据发布、仿真线程共享和处理数据
     zima::ZimaThreadWrapper::ThreadParam data_process_thread_param("Data process thread", zima::ZimaThreadManager::kMiscThreadIndex_, 100, 0.2, 1);
     thread_manager->RegisterThread(std::thread(&zima_ros::ZimaNode::DataProcessThread, &test, data_process_thread_param), data_process_thread_param);
 
-    // 运行核心的 Gazebo 清扫仿真逻辑
+    // 作用：运行核心的 Gazebo 清扫仿真逻辑，负责机器人底盘控制、模式切换、slam地图同步、操作数据管理，相当于整个系统的大脑
+    // 协作：读取和更新operation_data_、与数据处理、可视化线程共享机器人状态和地图、键盘事件响应、底盘控制
     zima::ZimaThreadWrapper::ThreadParam core_thread_param("Core thread", zima::ZimaThreadManager::kCoreThreadIndex_, 100, 0.2, 1);
     thread_manager->RegisterThread(std::thread(&zima_ros::ZimaGazeboNode::Run, &test, core_thread_param), core_thread_param);
 

@@ -5,7 +5,6 @@
  */
 
 #include "zima_ros/zima_node.h"
-
 // #include <cartographer_ros_msgs/StartTrajectory.h>
 // #include <cartographer_ros_msgs/WriteState.h>
 #include <geometry_msgs/Twist.h>
@@ -1183,7 +1182,6 @@ void ZimaNode::DataProcessThread(const ZimaThreadWrapper::ThreadParam &param) {
     }
 
     uint32_t map_seq = 0;
-
     std::shared_ptr<Timer> process_map_timer(new Timer("process data timer", 2, true, true));
 
     while (!shutdown_request_) {

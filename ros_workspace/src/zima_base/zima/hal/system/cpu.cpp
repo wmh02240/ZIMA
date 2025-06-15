@@ -14,18 +14,18 @@ namespace zima {
 
 bool IsRunningOnARM() {
 #ifdef __aarch64__
-  return true;
+    return true;
 #else
-  return false;
+    return false;
 #endif
 }
 
 bool IsRunningOnX86() {
 #ifdef __aarch64__
-  return false;
+    return false;
 #else
-  return true;
+    return true;
 #endif
 }
 
-}  // namespace zima
+} // namespace zima
