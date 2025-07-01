@@ -318,7 +318,7 @@ bool ZimaGazeboNode::ProcessData(
     }
   }
 
-  // Process scan msgs.
+  // Process bumper msgs.
   {
     WriteLocker lock(receive_msg_list_lock_);
     if (!receive_bumper_msg_list_.empty()) {
