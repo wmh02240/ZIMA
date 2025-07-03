@@ -53,7 +53,7 @@
   <xacro:property name="left_wall_sensor_x"  value="${(chassis_radius+0.001)*0.17365}"/>
   <xacro:property name="left_wall_sensor_y"  value="${(chassis_radius+0.001)*0.98481}"/>
   <xacro:property name="left_wall_sensor_z"  value="0"/>
-  <xacro:property name="left_wall_sensor_yaw"  value="-1.3963"/>
+  <xacro:property name="left_wall_sensor_yaw"  value="1.3963"/>
   <xacro:property name="left_wall_sensor_rate"  value="${sim_time_multi*50}"/>
   <xacro:property name="left_wall_sensor_visualization"  value="0"/>
   <xacro:property name="left_wall_sensor_samples"  value="1"/>
@@ -70,7 +70,7 @@
   <xacro:property name="right_wall_sensor_x"  value="${(chassis_radius+0.001)*0.17365}"/>
   <xacro:property name="right_wall_sensor_y"  value="${(chassis_radius+0.001)*-0.98481}"/>
   <xacro:property name="right_wall_sensor_z"  value="0"/>
-  <xacro:property name="right_wall_sensor_yaw"  value="1.3963"/>
+  <xacro:property name="right_wall_sensor_yaw"  value="-1.3963"/>
   <xacro:property name="right_wall_sensor_rate"  value="${sim_time_multi*50}"/>
   <xacro:property name="right_wall_sensor_visualization"  value="0"/>
   <xacro:property name="right_wall_sensor_samples"  value="1"/>
