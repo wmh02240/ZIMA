@@ -15,9 +15,9 @@ namespace zima {
 EncircleObstacleMovement::Config::Config(const Chassis::SPtr& chassis,
                                          const float& map_resolution,
                                          const JsonSPtr& json)
-    : left_point_cloud_select_range_(
-          0, chassis->GetRadius(), chassis->GetRadius() / 2,
-          chassis->GetRadius() + 2 * map_resolution),
+    : left_point_cloud_select_range_(0, chassis->GetRadius(),
+                                     chassis->GetRadius() / 2,
+                                     chassis->GetRadius() + 2 * map_resolution),
       right_point_cloud_select_range_(
           0, chassis->GetRadius(),
           -1 * left_point_cloud_select_range_.GetMax().Y(),
@@ -74,15 +74,16 @@ bool EncircleObstacleMovement::Config::ParseFromJson(
     encircle_obstacle_motion_config_.reset(new EncircleObstacleMotion::Config(
         wheel_max_speed, chassis_radius, wall_sensor_tf, _eo_json_config));
     if (!encircle_obstacle_motion_config_->config_valid_) {
-      ZERROR << "Config " << EncircleObstacleMotion::Config::kConfigKey_ << " in "
-             << kConfigKey_ << " invalid.";
+      ZERROR << "Config " << EncircleObstacleMotion::Config::kConfigKey_
+             << " in " << kConfigKey_ << " invalid.";
       return false;
     }
   }
   JsonSPtr _move_forward_json_config(new Json());
   if (JsonHelper::GetObject(*json, MoveForwardMotion::Config::kConfigKey_,
                             *_move_forward_json_config)) {
-    // ZINFO << "Override config from json: " << _move_forward_json_config->dump();
+    // ZINFO << "Override config from json: " <<
+    // _move_forward_json_config->dump();
     move_forward_motion_config_.reset(new MoveForwardMotion::Config(
         move_forward_distance_, move_forward_time_, wheel_max_speed,
         chassis_radius, _move_forward_json_config));
@@ -153,7 +154,7 @@ EncircleObstacleMovement::EncircleObstacleMovement(
 
   if (!config_.config_valid_) {
     ZERROR << "Config invalid.";
-    stage_= kStop;
+    stage_ = kStop;
     state_ = State::kError;
     return;
   }
@@ -190,7 +191,8 @@ void EncircleObstacleMovement::Run(const Chassis::SPtr& chassis,
                                                : chassis->kRightWallSensor_)
                       ->GetDistance();
   // ZWARN << "wall sensor:" << FloatToString(distance, 2);
-  if (distance < config_.encircle_obstacle_motion_config_->max_valid_obstacle_distance_) {
+  if (distance <
+      config_.encircle_obstacle_motion_config_->max_valid_obstacle_distance_) {
     marker_points.emplace_back(
         MarkerPoint(chassis
                         ->GetWallSensor(on_left_ ? chassis->kLeftWallSensor_
@@ -272,6 +274,11 @@ void EncircleObstacleMovement::Run(const Chassis::SPtr& chassis,
           finish_run = false;
           break;
         }
+        if (HandleCliffSensor(chassis, world_pose, map)) {
+          SwitchToRetreatMotion(chassis, odom_pose);
+          finish_run = false;
+          break;
+        }
         if (HandleMapValue(chassis, world_pose, map)) {
           // Stop reason is already format in HandleMapValue().
           if (stop_reason_ == StopReason::kStopForCleaningAreaEdge) {
@@ -340,6 +347,21 @@ void EncircleObstacleMovement::Run(const Chassis::SPtr& chassis,
           finish_run = false;
           break;
         }
+        if (HandleCliffSensor(chassis, world_pose, map)) {
+          if ((p_rotate_motion_->RotateAngle() > 0 && obstacle_degree_ > 45) ||
+              (p_rotate_motion_->RotateAngle() < 0 && obstacle_degree_ < -45)) {
+            // It is quite dangerous situation, if it keeps turning, there is a
+            // big chance that it will fall down, it is better move forward
+            // (away from cliff).
+            SwitchToMoveForwardMotion(chassis, odom_pose,
+                                      config_.move_forward_distance_,
+                                      config_.move_forward_time_);
+          } else {
+            SwitchToRetreatMotion(chassis, odom_pose);
+          }
+          finish_run = false;
+          break;
+        }
 
         state_ = state;
         p_rotate_motion_->SpeedControl(
@@ -393,6 +415,11 @@ void EncircleObstacleMovement::Run(const Chassis::SPtr& chassis,
           finish_run = false;
           break;
         }
+        if (HandleCliffSensor(chassis, world_pose, map)) {
+          SwitchToRetreatMotion(chassis, odom_pose);
+          finish_run = false;
+          break;
+        }
         if (HandleMapValue(chassis, world_pose, map)) {
           // Stop reason is already format in HandleMapValue().
           state_ = State::kStop;
@@ -440,8 +467,7 @@ void EncircleObstacleMovement::Run(const Chassis::SPtr& chassis,
             if (footstep_map->WorldToMap(world_pose, pose_cell)) {
               CharGridMap2D::DataType value;
               // ZINFO << "Check pose for " << pose_cell;
-              if (footstep_map->GetValue(pose_cell.X(), pose_cell.Y(),
-                                          value) &&
+              if (footstep_map->GetValue(pose_cell.X(), pose_cell.Y(), value) &&
                   value == NavMap::kFootStep_) {
                 ZGINFO << "Step on past path.";
                 step_on_past_path_.store(true);
@@ -484,15 +510,13 @@ void EncircleObstacleMovement::Run(const Chassis::SPtr& chassis,
           p_encircle_obstacle_motion_->UpdateDynamicPath(GetPathFromPointCloud(
               chassis, odom_pose, point_cloud_in_chassis_frame,
               config_.encircle_obstacle_motion_config_
-                       ->target_obstacle_distance_));
+                  ->target_obstacle_distance_));
         }
 
         if (NearBound(world_pose)) {
           p_encircle_obstacle_motion_->SlowdownTo(
-              config_.encircle_obstacle_motion_config_
-                       ->target_speed_ / 2,
-              config_.encircle_obstacle_motion_config_
-                       ->speed_up_step_);
+              config_.encircle_obstacle_motion_config_->target_speed_ / 2,
+              config_.encircle_obstacle_motion_config_->speed_up_step_);
         }
         p_encircle_obstacle_motion_->SpeedControl(
             world_pose, odom_pose,
@@ -505,6 +529,7 @@ void EncircleObstacleMovement::Run(const Chassis::SPtr& chassis,
         if (p_retreat_motion_ == nullptr) {
           if (!SwitchToRetreatMotion(chassis, odom_pose)) {
             chassis->ClearBumperEvent();
+            chassis->ClearCliffSensorEvent();
             break;
           }
         }
@@ -515,6 +540,7 @@ void EncircleObstacleMovement::Run(const Chassis::SPtr& chassis,
           stop_reason_ = kStopForException;
           SwitchStageAndClearMotion(kStop);
           chassis->ClearBumperEvent();
+          chassis->ClearCliffSensorEvent();
           break;
         }
 
@@ -637,9 +663,8 @@ bool EncircleObstacleMovement::SwitchToMoveForwardMotion(
   p_move_forward_motion_.reset(new MoveForwardMotion(
       chassis->GetTrackLength() / 2,
       chassis->GetWheel(chassis->kLeftWheel_)->MaxSpeed(),
-      chassis->GetWheel(chassis->kLeftWheel_)->MinSpeed(),
-      config_.move_forward_distance_, config_.move_forward_time_,
-      world_pose, *config_.move_forward_motion_config_, false));
+      chassis->GetWheel(chassis->kLeftWheel_)->MinSpeed(), move_distance,
+      move_time, world_pose, *config_.move_forward_motion_config_, false));
 
   // ZINFO;
   if (p_move_forward_motion_->GetState() == State::kError) {
@@ -827,59 +852,89 @@ bool EncircleObstacleMovement::HandleBumper(const Chassis::SPtr& chassis,
           right_bumper_triggered = true;
         }
       }
+      std::string trigger_bumper_name;
       if (on_left_) {
         if (right_bumper_triggered) {
-          marker_points.emplace_back(
-              MarkerPoint(chassis->GetBumper(chassis->kRightBumper_)
-                              ->GetEncircleObstacleMovementMarkPoint(on_left_),
-                          map->kBumper_));
-          obstacle_degree_ =
-              chassis->GetBumper(chassis->kRightBumper_)->GetTf().Degree();
+          trigger_bumper_name = chassis->kRightBumper_;
         } else if (center_bumper_triggered) {
-          marker_points.emplace_back(
-              MarkerPoint(chassis->GetBumper(chassis->kCenterBumper_)
-                              ->GetEncircleObstacleMovementMarkPoint(on_left_),
-                          map->kBumper_));
-          obstacle_degree_ =
-              chassis->GetBumper(chassis->kCenterBumper_)->GetTf().Degree();
+          trigger_bumper_name = chassis->kCenterBumper_;
         } else if (left_bumper_triggered) {
-          marker_points.emplace_back(
-              MarkerPoint(chassis->GetBumper(chassis->kLeftBumper_)
-                              ->GetEncircleObstacleMovementMarkPoint(on_left_),
-                          map->kBumper_));
-          obstacle_degree_ =
-              chassis->GetBumper(chassis->kLeftBumper_)->GetTf().Degree();
+          trigger_bumper_name = chassis->kLeftBumper_;
         }
       } else {
         if (left_bumper_triggered) {
-          marker_points.emplace_back(
-              MarkerPoint(chassis->GetBumper(chassis->kLeftBumper_)
-                              ->GetEncircleObstacleMovementMarkPoint(on_left_),
-                          map->kBumper_));
-          obstacle_degree_ =
-              chassis->GetBumper(chassis->kLeftBumper_)->GetTf().Degree();
+          trigger_bumper_name = chassis->kLeftBumper_;
         } else if (center_bumper_triggered) {
-          marker_points.emplace_back(
-              MarkerPoint(chassis->GetBumper(chassis->kCenterBumper_)
-                              ->GetEncircleObstacleMovementMarkPoint(on_left_),
-                          map->kBumper_));
-          obstacle_degree_ =
-              chassis->GetBumper(chassis->kCenterBumper_)->GetTf().Degree();
+          trigger_bumper_name = chassis->kCenterBumper_;
         } else if (right_bumper_triggered) {
-          marker_points.emplace_back(
-              MarkerPoint(chassis->GetBumper(chassis->kRightBumper_)
-                              ->GetEncircleObstacleMovementMarkPoint(on_left_),
-                          map->kBumper_));
-          obstacle_degree_ =
-              chassis->GetBumper(chassis->kRightBumper_)->GetTf().Degree();
+          trigger_bumper_name = chassis->kRightBumper_;
         }
       }
+      marker_points.emplace_back(
+          MarkerPoint(chassis->GetBumper(trigger_bumper_name)
+                          ->GetEncircleObstacleMovementMarkPoint(on_left_),
+                      map->kBumper_));
+      obstacle_degree_ =
+          chassis->GetBumper(trigger_bumper_name)->GetTf().Degree();
+
       if (steps_recorder_.AddPathPoint(StepPoint(world_pose, marker_points),
                                        true, true)) {
         MapCell pose_cell;
         if (map->GetFootStepLayer()->WorldToMap(world_pose, pose_cell)) {
           ZGINFO << pose_cell.DebugString() << world_pose.DebugString();
         }
+      }
+    }
+    return true;
+  }
+  return false;
+}
+
+bool EncircleObstacleMovement::HandleCliffSensor(const Chassis::SPtr& chassis,
+                                                 const MapPoint& world_pose,
+                                                 const NavMap::SPtr& map) {
+  std::vector<std::string> triggered_cliff_sensors;
+  if (chassis->GetCliffSensorEvent(triggered_cliff_sensors)) {
+    // ZWARN << "Cliff sensor trigger.";
+    MarkerPoints marker_points;
+    // Saperate 3 situation.
+    bool left_cliff_sensor = false;
+    bool left_front_cliff_sensor = false;
+    bool right_front_cliff_sensor = false;
+    bool right_cliff_sensor = false;
+    for (auto&& cliff_sensor : triggered_cliff_sensors) {
+      if (cliff_sensor == chassis->kLeftFrontCliffSensor_) {
+        left_front_cliff_sensor = true;
+      } else if (cliff_sensor == chassis->kRightFrontCliffSensor_) {
+        right_front_cliff_sensor = true;
+      } else if (cliff_sensor == chassis->kLeftCliffSensor_) {
+        left_cliff_sensor = true;
+      } else if (cliff_sensor == chassis->kRightCliffSensor_) {
+        right_cliff_sensor = true;
+      }
+    }
+    std::string handle_cliff_sensor_name;
+    if (left_front_cliff_sensor) {
+      handle_cliff_sensor_name = chassis->kLeftFrontCliffSensor_;
+    } else if (right_front_cliff_sensor) {
+      handle_cliff_sensor_name = chassis->kRightFrontCliffSensor_;
+    } else if (left_cliff_sensor) {
+      handle_cliff_sensor_name = chassis->kLeftCliffSensor_;
+    } else if (right_cliff_sensor) {
+      handle_cliff_sensor_name = chassis->kRightCliffSensor_;
+    }
+    marker_points.emplace_back(
+        MarkerPoint(chassis->GetCliffSensor(handle_cliff_sensor_name)
+                        ->GetEncircleObstacleMovementMarkPoint(),
+                    map->kCliff_));
+    obstacle_degree_ =
+        chassis->GetCliffSensor(handle_cliff_sensor_name)->GetTf().Degree();
+
+    if (steps_recorder_.AddPathPoint(StepPoint(world_pose, marker_points), true,
+                                     true)) {
+      MapCell pose_cell;
+      if (map->GetFootStepLayer()->WorldToMap(world_pose, pose_cell)) {
+        ZGINFO << pose_cell.DebugString() << world_pose.DebugString();
       }
     }
     return true;
@@ -1061,7 +1116,8 @@ PointCloud::Point EncircleObstacleMovement::GetChassisFrontNearestPointCloudObs(
       chassis->GetLidar(chassis->kLidar_)->GetPointCloudInChassisFrame();
   // static auto half_degree = RadiansToDegrees(atan2(
   //     NavMap::GetResolution() * 1.5,
-  //     chassis->GetRadius() - chassis->GetLidar(chassis->kLidar_)->GetTf().X()));
+  //     chassis->GetRadius() -
+  //     chassis->GetLidar(chassis->kLidar_)->GetTf().X()));
   static auto half_degree = 80;
   double timestamp = 0;
   float min_distance = std::numeric_limits<float>::max();
@@ -1093,14 +1149,27 @@ PointCloud::Point EncircleObstacleMovement::GetChassisFrontNearestPointCloudObs(
 float EncircleObstacleMovement::CalculateRotateDegree(
     const MapPoint& odom_pose, const Chassis::SPtr& chassis) {
   float rotate_degree = 0;
-  float bumper_rotate_degree = BumperEventRotateDegree(chassis);
-  if (bumper_rotate_degree > 0) {
-    bumper_rotate_degree = Maximum(bumper_rotate_degree, 5.0f);
-  } else if (bumper_rotate_degree < 0) {
-    bumper_rotate_degree = Minimum(bumper_rotate_degree, -5.0f);
-  }
-  chassis->ClearBumperEvent();
-  if (FloatEqual(bumper_rotate_degree, 0)) {
+  do {
+    std::vector<std::string> triggered_sensors;
+    if (chassis->GetCliffSensorEvent(triggered_sensors)) {
+      rotate_degree = CliffSensorEventRotateDegree(chassis);
+      chassis->ClearCliffSensorEvent();
+      break;
+    }
+
+    if (chassis->GetBumperEvent(triggered_sensors)) {
+      float bumper_rotate_degree = BumperEventRotateDegree(chassis);
+      if (bumper_rotate_degree > 0) {
+        bumper_rotate_degree = Maximum(bumper_rotate_degree, 5.0f);
+      } else if (bumper_rotate_degree < 0) {
+        bumper_rotate_degree = Minimum(bumper_rotate_degree, -5.0f);
+      }
+      rotate_degree = bumper_rotate_degree;
+      rotate_degree = LidarOptimizedRotateDegree(chassis, rotate_degree);
+      chassis->ClearBumperEvent();
+      break;
+    }
+
     rotate_degree = obstacle_degree_ + (on_left_ ? -80 : 80);
     rotate_degree = LidarOptimizedRotateDegree(chassis, rotate_degree);
     if (on_left_) {
@@ -1108,9 +1177,7 @@ float EncircleObstacleMovement::CalculateRotateDegree(
     } else {
       rotate_degree = Clip(rotate_degree, rotate_degree, 70.f);
     }
-  } else {
-    rotate_degree = LidarOptimizedRotateDegree(chassis, bumper_rotate_degree);
-  }
+  } while (0);
 
   if (turn_with_less_degree_) {
     if (on_left_) {
@@ -1202,6 +1269,49 @@ float EncircleObstacleMovement::BumperEventRotateDegree(
   }
 
   // ZINFO << "Bumper event rotate degree:" << rotate_degree;
+  return rotate_degree;
+}
+
+float EncircleObstacleMovement::CliffSensorEventRotateDegree(
+    const Chassis::SPtr& chassis) {
+  float rotate_degree = 0;
+  std::vector<std::string> triggered_cliff_sensors;
+  std::string handle_cliff_sensor_name;
+  if (chassis->GetCliffSensorEvent(triggered_cliff_sensors)) {
+    // ZWARN << "Cliff sensor trigger.";
+    MarkerPoints marker_points;
+    // Saperate 3 situation.
+    bool left_cliff_sensor = false;
+    bool left_front_cliff_sensor = false;
+    bool right_front_cliff_sensor = false;
+    bool right_cliff_sensor = false;
+    for (auto&& cliff_sensor : triggered_cliff_sensors) {
+      if (cliff_sensor == chassis->kLeftFrontCliffSensor_) {
+        left_front_cliff_sensor = true;
+      } else if (cliff_sensor == chassis->kRightFrontCliffSensor_) {
+        right_front_cliff_sensor = true;
+      } else if (cliff_sensor == chassis->kLeftCliffSensor_) {
+        left_cliff_sensor = true;
+      } else if (cliff_sensor == chassis->kRightCliffSensor_) {
+        right_cliff_sensor = true;
+      }
+    }
+    if (left_front_cliff_sensor) {
+      handle_cliff_sensor_name = chassis->kLeftFrontCliffSensor_;
+    } else if (right_front_cliff_sensor) {
+      handle_cliff_sensor_name = chassis->kRightFrontCliffSensor_;
+    } else if (left_cliff_sensor) {
+      handle_cliff_sensor_name = chassis->kLeftCliffSensor_;
+    } else if (right_cliff_sensor) {
+      handle_cliff_sensor_name = chassis->kRightCliffSensor_;
+    }
+  }
+
+  rotate_degree =
+      chassis->GetCliffSensor(handle_cliff_sensor_name)->GetTf().Degree() -
+      (on_left_ ? 95 : -95);
+
+  // ZINFO << "Cliff sensor event rotate degree:" << rotate_degree;
   return rotate_degree;
 }
 

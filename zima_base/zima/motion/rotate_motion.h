@@ -52,6 +52,7 @@ class RotateMotion : public MotionBase {
                     const float& current_left_wheel_speed,
                     const float& current_right_wheel_speed,
                     float& left_wheel_speed, float& right_wheel_speed) override;
+  float RotateAngle() const { return rotate_angle_; };
 
  protected:
   bool IsTargetReached(const float& angle_diff);

@@ -56,6 +56,8 @@ class Chassis : public DeviceManager {
   virtual void Initialize();
   bool GetBumperEvent(std::vector<std::string>& bumper_names);
   bool ClearBumperEvent();
+  bool GetCliffSensorEvent(std::vector<std::string>& cliff_sensor_names);
+  bool ClearCliffSensorEvent();
 
   float GetTrackLength() const { return track_length_; }
   float GetRadius() const { return radius_; }
@@ -73,6 +75,11 @@ class Chassis : public DeviceManager {
   static const std::string kLeftBumper_;
   static const std::string kCenterBumper_;
   static const std::string kRightBumper_;
+
+  static const std::string kLeftCliffSensor_;
+  static const std::string kLeftFrontCliffSensor_;
+  static const std::string kRightFrontCliffSensor_;
+  static const std::string kRightCliffSensor_;
 
   static const std::string kButton1_;
 

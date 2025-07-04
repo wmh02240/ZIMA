@@ -13,7 +13,7 @@ namespace zima {
 
 #define ZIMA_BASE_MAJOR_VERSION "0"
 #define ZIMA_BASE_MINOR_VERSION "1"
-#define ZIMA_BASE_PATCH_VERSION "1"
+#define ZIMA_BASE_PATCH_VERSION "2"
 
 std::string GetBaseVersionInfo() {
   static std::string version_info;

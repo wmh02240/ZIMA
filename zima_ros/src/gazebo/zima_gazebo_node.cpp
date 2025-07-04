@@ -60,6 +60,18 @@ ZimaGazeboNode::ZimaGazeboNode(const bool &use_simple_slam)
   gazebo_right_wall_sensor_subscriber_ =
       node.subscribe("/zima_gazebo_robot/right_wall_sensor_scan", 1,
                      &ZimaGazeboNode::GazeboRightWallSensorCb, this);
+  gazebo_left_cliff_sensor_subscriber_ =
+      node.subscribe("/zima_gazebo_robot/left_cliff_sensor_scan", 1,
+                     &ZimaGazeboNode::GazeboLeftCliffSensorCb, this);
+  gazebo_left_front_cliff_sensor_subscriber_ =
+      node.subscribe("/zima_gazebo_robot/left_front_cliff_sensor_scan", 1,
+                     &ZimaGazeboNode::GazeboLeftFrontCliffSensorCb, this);
+  gazebo_right_front_cliff_sensor_subscriber_ =
+      node.subscribe("/zima_gazebo_robot/right_front_cliff_sensor_scan", 1,
+                     &ZimaGazeboNode::GazeboRightFrontCliffSensorCb, this);
+  gazebo_right_cliff_sensor_subscriber_ =
+      node.subscribe("/zima_gazebo_robot/right_cliff_sensor_scan", 1,
+                     &ZimaGazeboNode::GazeboRightCliffSensorCb, this);
 
   use_sim_time_ = true;
   sim_time_received_.store(false);
@@ -149,6 +161,66 @@ void ZimaGazeboNode::GazeboRightWallSensorCb(
   // ZINFO << "Right wall sensor: " << FloatToString(distance, 4);
   chassis_->GetWallSensor(chassis_->kRightWallSensor_)
       ->UpdateDistance(distance);
+}
+
+void ZimaGazeboNode::GazeboLeftCliffSensorCb(
+    const sensor_msgs::LaserScan::ConstPtr &msg) {
+  static const float max_distance = 0.2;
+  float distance = max_distance;
+  if (!msg->ranges.empty()) {
+    distance =
+        msg->ranges.at(0) > max_distance ? max_distance : msg->ranges.at(0);
+  } else {
+    ZWARN << "Left cliff sensor missing data.";
+  }
+  // ZINFO << "Left cliff sensor: " << FloatToString(distance, 4);
+  chassis_->GetCliffSensor(chassis_->kLeftCliffSensor_)
+      ->UpdateRealtimeDistanceValue(distance);
+}
+
+void ZimaGazeboNode::GazeboLeftFrontCliffSensorCb(
+    const sensor_msgs::LaserScan::ConstPtr &msg) {
+  static const float max_distance = 0.2;
+  float distance = max_distance;
+  if (!msg->ranges.empty()) {
+    distance =
+        msg->ranges.at(0) > max_distance ? max_distance : msg->ranges.at(0);
+  } else {
+    ZWARN << "Left front cliff sensor missing data.";
+  }
+  // ZINFO << "Left front cliff sensor: " << FloatToString(distance, 4);
+  chassis_->GetCliffSensor(chassis_->kLeftFrontCliffSensor_)
+      ->UpdateRealtimeDistanceValue(distance);
+}
+
+void ZimaGazeboNode::GazeboRightFrontCliffSensorCb(
+    const sensor_msgs::LaserScan::ConstPtr &msg) {
+  static const float max_distance = 0.2;
+  float distance = max_distance;
+  if (!msg->ranges.empty()) {
+    distance =
+        msg->ranges.at(0) > max_distance ? max_distance : msg->ranges.at(0);
+  } else {
+    ZWARN << "Right front cliff sensor missing data.";
+  }
+  // ZINFO << "Right front cliff sensor: " << FloatToString(distance, 4);
+  chassis_->GetCliffSensor(chassis_->kRightFrontCliffSensor_)
+      ->UpdateRealtimeDistanceValue(distance);
+}
+
+void ZimaGazeboNode::GazeboRightCliffSensorCb(
+    const sensor_msgs::LaserScan::ConstPtr &msg) {
+  static const float max_distance = 0.2;
+  float distance = max_distance;
+  if (!msg->ranges.empty()) {
+    distance =
+        msg->ranges.at(0) > max_distance ? max_distance : msg->ranges.at(0);
+  } else {
+    ZWARN << "Right cliff sensor missing data.";
+  }
+  // ZINFO << "Right cliff sensor: " << FloatToString(distance, 4);
+  chassis_->GetCliffSensor(chassis_->kRightCliffSensor_)
+      ->UpdateRealtimeDistanceValue(distance);
 }
 
 bool ZimaGazeboNode::ProcessData(

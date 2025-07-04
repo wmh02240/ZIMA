@@ -122,7 +122,7 @@ TracePathMovement::TracePathMovement(
 
   if (!config_.config_valid_) {
     ZERROR << "Config invalid.";
-    stage_= kStop;
+    stage_ = kStop;
     state_ = State::kError;
     return;
   }
@@ -195,6 +195,11 @@ void TracePathMovement::Run(const Chassis::SPtr& chassis,
           finish_run = false;
           break;
         }
+        if (HandleCliffSensor(chassis, world_pose, map)) {
+          SwitchToRetreatMotion(chassis, odom_pose);
+          finish_run = false;
+          break;
+        }
 
         state_ = state;
         p_rotate_motion_->SpeedControl(
@@ -244,6 +249,11 @@ void TracePathMovement::Run(const Chassis::SPtr& chassis,
           finish_run = false;
           break;
         }
+        if (HandleCliffSensor(chassis, world_pose, map)) {
+          SwitchToRetreatMotion(chassis, odom_pose);
+          finish_run = false;
+          break;
+        }
         if (HandleMapValue(chassis, world_pose, map)) {
           // Stop reason is already format in HandleMapValue().
           state_ = State::kStop;
@@ -272,7 +282,8 @@ void TracePathMovement::Run(const Chassis::SPtr& chassis,
         //       config_.trace_path_obstacle_slow_down_speed_step_);
         // }
 
-        // if (world_pose.Distance(path_.back()) < map->GetResolution() * 2 / 3) {
+        // if (world_pose.Distance(path_.back()) < map->GetResolution() * 2 / 3)
+        // {
         if (world_pose.Distance(path_.back()) < map->GetResolution()) {
           p_trace_path_motion_->SlowdownTo(
               config_.trace_path_obstacle_slow_down_speed_,
@@ -307,6 +318,7 @@ void TracePathMovement::Run(const Chassis::SPtr& chassis,
         if (p_retreat_motion_ == nullptr) {
           if (!SwitchToRetreatMotion(chassis, odom_pose)) {
             chassis->ClearBumperEvent();
+            chassis->ClearCliffSensorEvent();
             break;
           }
         }
@@ -317,6 +329,7 @@ void TracePathMovement::Run(const Chassis::SPtr& chassis,
           stop_reason_ = kStopForException;
           SwitchStageAndClearMotion(kStop);
           chassis->ClearBumperEvent();
+          chassis->ClearCliffSensorEvent();
           break;
         }
 
@@ -331,6 +344,7 @@ void TracePathMovement::Run(const Chassis::SPtr& chassis,
           SwitchStageAndClearMotion(kStop);
           state_ = State::kStop;
           chassis->ClearBumperEvent();
+          chassis->ClearCliffSensorEvent();
           break;
         }
         state_ = state;
@@ -526,15 +540,17 @@ bool TracePathMovement::HandleBumper(const Chassis::SPtr& chassis,
                         map->kBumper_));
         obstacle_degree_ = 0;
       } else if (left_bumper) {
-        marker_points.emplace_back(MarkerPoint(
-            chassis->GetBumper(chassis->kLeftBumper_)->GetTracePathMovementMarkPoint(),
-            map->kBumper_));
+        marker_points.emplace_back(
+            MarkerPoint(chassis->GetBumper(chassis->kLeftBumper_)
+                            ->GetTracePathMovementMarkPoint(),
+                        map->kBumper_));
         obstacle_degree_ =
             chassis->GetBumper(chassis->kLeftBumper_)->GetTf().Degree();
       } else if (right_bumper) {
-        marker_points.emplace_back(MarkerPoint(
-            chassis->GetBumper(chassis->kRightBumper_)->GetTracePathMovementMarkPoint(),
-            map->kBumper_));
+        marker_points.emplace_back(
+            MarkerPoint(chassis->GetBumper(chassis->kRightBumper_)
+                            ->GetTracePathMovementMarkPoint(),
+                        map->kBumper_));
         obstacle_degree_ =
             chassis->GetBumper(chassis->kRightBumper_)->GetTf().Degree();
       }
@@ -560,25 +576,20 @@ bool TracePathMovement::HandleBumper(const Chassis::SPtr& chassis,
           right_bumper = true;
         }
       }
+      std::string trigger_bumper_name;
       if (center_bumper) {
-        marker_points.emplace_back(
-            MarkerPoint(chassis->GetBumper(chassis->kCenterBumper_)
-                            ->GetTracePathMovementMarkPoint(),
-                        map->kBumper_));
-        obstacle_degree_ = 0;
+        trigger_bumper_name = chassis->kCenterBumper_;
       } else if (left_bumper) {
-        marker_points.emplace_back(MarkerPoint(
-            chassis->GetBumper(chassis->kLeftBumper_)->GetTracePathMovementMarkPoint(),
-            map->kBumper_));
-        obstacle_degree_ =
-            chassis->GetBumper(chassis->kLeftBumper_)->GetTf().Degree();
+        trigger_bumper_name = chassis->kLeftBumper_;
       } else if (right_bumper) {
-        marker_points.emplace_back(MarkerPoint(
-            chassis->GetBumper(chassis->kRightBumper_)->GetTracePathMovementMarkPoint(),
-            map->kBumper_));
-        obstacle_degree_ =
-            chassis->GetBumper(chassis->kRightBumper_)->GetTf().Degree();
+        trigger_bumper_name = chassis->kLeftBumper_;
       }
+      marker_points.emplace_back(
+          MarkerPoint(chassis->GetBumper(trigger_bumper_name)
+                          ->GetTracePathMovementMarkPoint(),
+                      map->kBumper_));
+      obstacle_degree_ =
+          chassis->GetBumper(trigger_bumper_name)->GetTf().Degree();
 
       if (steps_recorder_.AddPathPoint(StepPoint(world_pose, marker_points),
                                        true, true)) {
@@ -593,13 +604,63 @@ bool TracePathMovement::HandleBumper(const Chassis::SPtr& chassis,
   return false;
 }
 
+bool TracePathMovement::HandleCliffSensor(const Chassis::SPtr& chassis,
+                                          const MapPoint& world_pose,
+                                          const NavMap::SPtr& map) {
+  std::vector<std::string> triggered_cliff_sensors;
+  if (chassis->GetCliffSensorEvent(triggered_cliff_sensors)) {
+    ZGWARN << "Cliff sensor trigger.";
+    MarkerPoints marker_points;
+    bool left_cliff_sensor = false;
+    bool left_front_cliff_sensor = false;
+    bool right_front_cliff_sensor = false;
+    bool right_cliff_sensor = false;
+    for (auto&& cliff_sensor : triggered_cliff_sensors) {
+      if (cliff_sensor == chassis->kLeftFrontCliffSensor_) {
+        left_front_cliff_sensor = true;
+      } else if (cliff_sensor == chassis->kRightFrontCliffSensor_) {
+        right_front_cliff_sensor = true;
+      } else if (cliff_sensor == chassis->kLeftCliffSensor_) {
+        left_cliff_sensor = true;
+      } else if (cliff_sensor == chassis->kRightCliffSensor_) {
+        right_cliff_sensor = true;
+      }
+    }
+    std::string handle_cliff_sensor_name;
+    if (left_front_cliff_sensor) {
+      handle_cliff_sensor_name = chassis->kLeftFrontCliffSensor_;
+    } else if (right_front_cliff_sensor) {
+      handle_cliff_sensor_name = chassis->kRightFrontCliffSensor_;
+    } else if (left_cliff_sensor) {
+      handle_cliff_sensor_name = chassis->kLeftCliffSensor_;
+    } else if (right_cliff_sensor) {
+      handle_cliff_sensor_name = chassis->kRightCliffSensor_;
+    }
+    marker_points.emplace_back(
+        MarkerPoint(chassis->GetCliffSensor(handle_cliff_sensor_name)
+                        ->GetTracePathMovementMarkPoint(),
+                    map->kCliff_));
+    obstacle_degree_ =
+        chassis->GetCliffSensor(handle_cliff_sensor_name)->GetTf().Degree();
+
+    if (steps_recorder_.AddPathPoint(StepPoint(world_pose, marker_points), true,
+                                     true)) {
+      MapCell pose_cell;
+      if (map->GetFootStepLayer()->WorldToMap(world_pose, pose_cell)) {
+        ZGINFO << pose_cell.DebugString() << world_pose.DebugString();
+      }
+    }
+    return true;
+  }
+  return false;
+}
+
 bool TracePathMovement::HandleMapValue(const Chassis::SPtr& chassis,
                                        const MapPoint& world_pose,
                                        const NavMap::SPtr& map) {
   // Handle for room edge.
   bool reach_room_edge = false;
-  if (enable_room_value_checking_ &&
-      current_room_index_ != NavMap::kUnknown_) {
+  if (enable_room_value_checking_ && current_room_index_ != NavMap::kUnknown_) {
     auto room_map = map->GetRoomLayer();
     ReadLocker read_lock(room_map->GetLock());
     int map_x, map_y;
@@ -745,7 +806,7 @@ bool TracePathMovement::HandleMapValue(const Chassis::SPtr& chassis,
           point.X(), point.Y(), world_pose.X(), world_pose.Y(),
           world_pose.Radian(), point_x_in_map, point_y_in_map);
       if (footstep_map->WorldToMap(point_x_in_map, point_y_in_map, map_x,
-                                     map_y)) {
+                                   map_y)) {
         if (!footstep_map_max_clean_bound.Contain(MapCell(map_x, map_y))) {
           ZINFO << "Reach cleaning area edge.";
           ZGINFO << footstep_map_max_clean_bound.DebugString() << ", current "

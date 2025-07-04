@@ -121,12 +121,15 @@ class EncircleObstacleMovement : public EncircleMovementBase {
                        const PointCloud::Point& nearest_point);
   bool HandleBumper(const Chassis::SPtr& chassis, const MapPoint& world_pose,
                     const NavMap::SPtr& map);
+  bool HandleCliffSensor(const Chassis::SPtr& chassis,
+                         const MapPoint& world_pose, const NavMap::SPtr& map);
   bool HandleMapValue(const Chassis::SPtr& chassis, const MapPoint& world_pose,
                       const NavMap::SPtr& map);
 
   float CalculateRotateDegree(const MapPoint& odom_pose,
                               const Chassis::SPtr& chassis);
   float BumperEventRotateDegree(const Chassis::SPtr& chassis);
+  float CliffSensorEventRotateDegree(const Chassis::SPtr& chassis);
   float LidarOptimizedRotateDegree(const Chassis::SPtr& chassis,
                                    const float& min_degree);
 

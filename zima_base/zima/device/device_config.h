@@ -15,6 +15,7 @@
 #include "zima/device/battery.h"
 #include "zima/device/bumper.h"
 #include "zima/device/button.h"
+#include "zima/device/cliff_sensor.h"
 #include "zima/device/device.h"
 #include "zima/device/gyro.h"
 #include "zima/device/lidar.h"
@@ -55,6 +56,17 @@ const std::string Bumper::kNullName_ = "Null bumper";
 // ====================
 const std::string Button::Config::kReleaseDelayKey_ = "release delay";
 const std::string Button::kNullName_ = "null button";
+
+// ====================
+const std::string CliffSensor::Config::kInstallDegreeKey_ =
+    "install degree";
+const std::string CliffSensor::Config::kTracePathMovementMarkPointKey_ =
+    "trace path movement mark point";
+const std::string CliffSensor::Config::kEncircleObstacleMovementMarkPointKey_ =
+    "left encircle obstacle movement mark point";
+const std::string CliffSensor::Config::kTriggerDistanceValueKey_ =
+    "trigger value";
+const std::string CliffSensor::kNullName_ = "null cliff sensor";
 
 // ====================
 const std::string Gyro::kNullName_ = "null gyro";

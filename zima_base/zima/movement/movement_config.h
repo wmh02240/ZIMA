@@ -51,6 +51,12 @@ const std::string EncircleMapEdgeMovement::Config::kConfigKey_ =
     "encircle map edge movement config";
 const std::string EncircleMapEdgeMovement::Config::kRetreatDistanceKey_ =
     "retreat distance";
+const std::string
+    EncircleMapEdgeMovement::Config::kMoveForwardToEscepeCliffDistanceKey_ =
+    "move forward to escape cliff distance";
+const std::string
+    EncircleMapEdgeMovement::Config::kMoveForwardToEscepeCliffTimeKey_ =
+    "move forward to escape cliff time";
 
 }  // namespace zima
 

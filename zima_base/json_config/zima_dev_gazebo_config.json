@@ -119,6 +119,22 @@
           "install degree": -80,
           "mark distance on y" : 0.03
         },
+        "left cliff sensor": {
+          "install degree": 80,
+          "trigger value" : 0.02
+        },
+        "left front cliff sensor": {
+          "install degree": 15,
+          "trigger value" : 0.02
+        },
+        "right front cliff sensor": {
+          "install degree": -15,
+          "trigger value" : 0.02
+        },
+        "right cliff sensor": {
+          "install degree": -80,
+          "trigger value" : 0.02
+        },
         "gyro": {
           "tf to base": [
             0,

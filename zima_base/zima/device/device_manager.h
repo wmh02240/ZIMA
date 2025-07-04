@@ -16,6 +16,7 @@
 #include "zima/device/battery.h"
 #include "zima/device/bumper.h"
 #include "zima/device/button.h"
+#include "zima/device/cliff_sensor.h"
 #include "zima/device/gyro.h"
 #include "zima/device/lidar.h"
 #include "zima/device/wall_sensor.h"
@@ -28,7 +29,7 @@ class MergedOdomData {
   MergedOdomData() = delete;
   MergedOdomData(const double& timestamp, const MapPoint& pose);
   MergedOdomData(const double& timestamp, const MapPoint& pose,
-               const MapPoint& velocity);
+                 const MapPoint& velocity);
   ~MergedOdomData() = default;
 
   using SPtr = std::shared_ptr<MergedOdomData>;
@@ -55,6 +56,7 @@ class DeviceManager {
   Battery::SPtr GetBattery(const std::string& name) const;
   Bumper::SPtr GetBumper(const std::string& name) const;
   Button::SPtr GetButton(const std::string& name) const;
+  CliffSensor::SPtr GetCliffSensor(const std::string& name) const;
   Wheel::SPtr GetWheel(const std::string& name) const;
   WallSensor::SPtr GetWallSensor(const std::string& name) const;
   Gyro::SPtr GetGyro(const std::string& name) const;
@@ -73,6 +75,8 @@ class DeviceManager {
   void InitializeBattery(const std::vector<Battery::SPtr>& batteries_info);
   void InitializeBumper(const std::vector<Bumper::SPtr>& bumpers_info);
   void InitializeButton(const std::vector<Button::SPtr>& buttons_info);
+  void InitializeCliffSensor(
+      const std::vector<CliffSensor::SPtr>& cliff_sensors_info);
   void InitializeWheel(const std::vector<Wheel::SPtr>& wheels_info);
   void InitializeWallSensor(
       const std::vector<WallSensor::SPtr>& wall_sensors_info);
@@ -84,6 +88,7 @@ class DeviceManager {
   std::map<std::string, Battery::SPtr> batteries_;
   std::map<std::string, Bumper::SPtr> bumpers_;
   std::map<std::string, Button::SPtr> buttons_;
+  std::map<std::string, CliffSensor::SPtr> cliff_sensors_;
   std::map<std::string, Wheel::SPtr> wheels_;
   std::map<std::string, WallSensor::SPtr> wall_sensors_;
   std::map<std::string, Gyro::SPtr> gyros_;

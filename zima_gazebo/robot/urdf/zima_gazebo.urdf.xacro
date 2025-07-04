@@ -198,6 +198,118 @@
       </sensor>
     </gazebo>
 
+    <gazebo reference="left_cliff_sensor_link">
+      <material>Gazebo/Blue</material>
+      <sensor type="ray" name="left_cliff_sensor">
+        <always_on>true</always_on>
+        <update_rate>${left_cliff_sensor_rate}</update_rate>
+        <visualize>${left_cliff_sensor_visualization}</visualize>
+        <ray>
+          <scan>
+            <horizontal>
+              <samples>${left_cliff_sensor_horizontal_samples}</samples>
+              <resolution>${left_cliff_sensor_horizontal_resolution}</resolution>
+              <min_angle>${left_cliff_sensor_horizontal_min_radian}</min_angle>
+              <max_angle>${left_cliff_sensor_horizontal_max_radian}</max_angle>
+            </horizontal>
+          </scan>
+          <range>
+            <min>${left_cliff_sensor_range_min}</min>
+            <max>${left_cliff_sensor_range_max}</max>
+            <resolution>${left_cliff_sensor_range_resolution}</resolution>
+          </range>
+        </ray>
+        <plugin name="left_cliff_sensor" filename="libgazebo_ros_laser.so">
+          <topicName>${topic_prefix}/${left_cliff_sensor_topic}</topicName>
+          <frameName>left_cliff_sensor</frameName>
+        </plugin>
+      </sensor>
+    </gazebo>
+
+    <gazebo reference="left_front_cliff_sensor_link">
+      <material>Gazebo/Blue</material>
+      <sensor type="ray" name="left_front_cliff_sensor">
+        <always_on>true</always_on>
+        <update_rate>${left_front_cliff_sensor_rate}</update_rate>
+        <visualize>${left_front_cliff_sensor_visualization}</visualize>
+        <ray>
+          <scan>
+            <horizontal>
+              <samples>${left_front_cliff_sensor_horizontal_samples}</samples>
+              <resolution>${left_front_cliff_sensor_horizontal_resolution}</resolution>
+              <min_angle>${left_front_cliff_sensor_horizontal_min_radian}</min_angle>
+              <max_angle>${left_front_cliff_sensor_horizontal_max_radian}</max_angle>
+            </horizontal>
+          </scan>
+          <range>
+            <min>${left_front_cliff_sensor_range_min}</min>
+            <max>${left_front_cliff_sensor_range_max}</max>
+            <resolution>${left_front_cliff_sensor_range_resolution}</resolution>
+          </range>
+        </ray>
+        <plugin name="left_front_cliff_sensor" filename="libgazebo_ros_laser.so">
+          <topicName>${topic_prefix}/${left_front_cliff_sensor_topic}</topicName>
+          <frameName>left_front_cliff_sensor</frameName>
+        </plugin>
+      </sensor>
+    </gazebo>
+
+    <gazebo reference="right_front_cliff_sensor_link">
+      <material>Gazebo/Blue</material>
+      <sensor type="ray" name="right_front_cliff_sensor">
+        <always_on>true</always_on>
+        <update_rate>${right_front_cliff_sensor_rate}</update_rate>
+        <visualize>${right_front_cliff_sensor_visualization}</visualize>
+        <ray>
+          <scan>
+            <horizontal>
+              <samples>${right_front_cliff_sensor_horizontal_samples}</samples>
+              <resolution>${right_front_cliff_sensor_horizontal_resolution}</resolution>
+              <min_angle>${right_front_cliff_sensor_horizontal_min_radian}</min_angle>
+              <max_angle>${right_front_cliff_sensor_horizontal_max_radian}</max_angle>
+            </horizontal>
+          </scan>
+          <range>
+            <min>${right_front_cliff_sensor_range_min}</min>
+            <max>${right_front_cliff_sensor_range_max}</max>
+            <resolution>${right_front_cliff_sensor_range_resolution}</resolution>
+          </range>
+        </ray>
+        <plugin name="right_front_cliff_sensor" filename="libgazebo_ros_laser.so">
+          <topicName>${topic_prefix}/${right_front_cliff_sensor_topic}</topicName>
+          <frameName>right_front_cliff_sensor</frameName>
+        </plugin>
+      </sensor>
+    </gazebo>
+
+    <gazebo reference="right_cliff_sensor_link">
+      <material>Gazebo/Blue</material>
+      <sensor type="ray" name="right_cliff_sensor">
+        <always_on>true</always_on>
+        <update_rate>${right_cliff_sensor_rate}</update_rate>
+        <visualize>${right_cliff_sensor_visualization}</visualize>
+        <ray>
+          <scan>
+            <horizontal>
+              <samples>${right_cliff_sensor_horizontal_samples}</samples>
+              <resolution>${right_cliff_sensor_horizontal_resolution}</resolution>
+              <min_angle>${right_cliff_sensor_horizontal_min_radian}</min_angle>
+              <max_angle>${right_cliff_sensor_horizontal_max_radian}</max_angle>
+            </horizontal>
+          </scan>
+          <range>
+            <min>${right_cliff_sensor_range_min}</min>
+            <max>${right_cliff_sensor_range_max}</max>
+            <resolution>${right_cliff_sensor_range_resolution}</resolution>
+          </range>
+        </ray>
+        <plugin name="right_cliff_sensor" filename="libgazebo_ros_laser.so">
+          <topicName>${topic_prefix}/${right_cliff_sensor_topic}</topicName>
+          <frameName>right_cliff_sensor</frameName>
+        </plugin>
+      </sensor>
+    </gazebo>
+
   </xacro:macro>
 
   <xacro:macro name="zima_ros_robot_controller" >

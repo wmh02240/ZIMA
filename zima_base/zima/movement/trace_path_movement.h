@@ -110,6 +110,8 @@ class TracePathMovement : public MovementBase {
                        const PointCloud::Point& nearest_point);
   bool HandleBumper(const Chassis::SPtr& chassis, const MapPoint& world_pose,
                     const NavMap::SPtr& map);
+  bool HandleCliffSensor(const Chassis::SPtr& chassis,
+                         const MapPoint& world_pose, const NavMap::SPtr& map);
   bool HandleMapValue(const Chassis::SPtr& chassis, const MapPoint& world_pose,
                       const NavMap::SPtr& map);
 

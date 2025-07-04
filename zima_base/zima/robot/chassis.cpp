@@ -46,8 +46,7 @@ bool Chassis::Config::ParseFromJson(const JsonSPtr& json) {
 
   // Override.
   device_config_.reset(new Json());
-  if (!JsonHelper::GetObject(*json, kDeviceConfigKey_,
-                            *device_config_)) {
+  if (!JsonHelper::GetObject(*json, kDeviceConfigKey_, *device_config_)) {
     ZERROR << "Config " << kDeviceConfigKey_ << " not found.";
     return false;
   }
@@ -93,6 +92,7 @@ void Chassis::Initialize() {
   std::vector<Gyro::SPtr> gyro_infos;
   std::vector<Lidar::SPtr> lidar_infos;
   std::vector<Battery::SPtr> battery_infos;
+  std::vector<CliffSensor::SPtr> cliff_sensor_infos;
   for (auto&& item : config_.device_config_->items()) {
     if (!item.value().is_object()) {
       ZERROR << "Invalid config:\n"
@@ -156,6 +156,21 @@ void Chassis::Initialize() {
       }
       battery_infos.emplace_back(std::make_shared<Battery>(item.key(), config));
     }
+    if (item.key() == kLeftCliffSensor_ ||
+        item.key() == kLeftFrontCliffSensor_ ||
+        item.key() == kRightFrontCliffSensor_ ||
+        item.key() == kRightCliffSensor_) {
+      CliffSensor::Config config(NavMap::GetResolution(),
+                                 NavMap::kRobotCellWidth_2_, radius_,
+                                 std::make_shared<Json>(item.value()));
+      if (!config.config_valid_) {
+        ZERROR << "Invalid config:\n"
+               << item.key() << ": " << item.value().dump();
+        continue;
+      }
+      cliff_sensor_infos.emplace_back(
+          std::make_shared<CliffSensor>(item.key(), config));
+    }
   }
   InitializeWheel(wheel_infos);
   InitializeBumper(bumper_infos);
@@ -163,6 +178,7 @@ void Chassis::Initialize() {
   InitializeGyro(gyro_infos);
   InitializeLidar(lidar_infos);
   InitializeBattery(battery_infos);
+  InitializeCliffSensor(cliff_sensor_infos);
 }
 
 bool Chassis::GetBumperEvent(std::vector<std::string>& bumper_names) {
@@ -181,6 +197,27 @@ bool Chassis::GetBumperEvent(std::vector<std::string>& bumper_names) {
 bool Chassis::ClearBumperEvent() {
   for (auto&& bumper_pair : bumpers_) {
     bumper_pair.second->ClearEvent();
+  }
+  return true;
+}
+
+bool Chassis::GetCliffSensorEvent(
+    std::vector<std::string>& cliff_sensor_names) {
+  cliff_sensor_names.clear();
+  bool ret = false;
+  for (auto&& cliff_sensor_pair : cliff_sensors_) {
+    if (cliff_sensor_pair.second->TriggeredEvent()) {
+      cliff_sensor_names.emplace_back(cliff_sensor_pair.second->Name());
+      ret = true;
+    }
+  }
+
+  return ret;
+}
+
+bool Chassis::ClearCliffSensorEvent() {
+  for (auto&& cliff_sensor_pair : cliff_sensors_) {
+    cliff_sensor_pair.second->ClearEvent();
   }
   return true;
 }

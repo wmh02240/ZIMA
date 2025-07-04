@@ -28,7 +28,8 @@ class EncircleMapEdgeMovement : public EncircleMovementBase {
            const JsonSPtr& json = nullptr);
     ~Config() = default;
 
-    bool ParseFromJson(const float& track_length, const float& wheel_max_speed,
+    bool ParseFromJson(const float& track_length, const float& chassis_radius,
+                       const float& wheel_max_speed,
                        const float& map_resolution, const JsonSPtr& json);
 
     bool config_valid_;
@@ -38,9 +39,14 @@ class EncircleMapEdgeMovement : public EncircleMovementBase {
     EncircleMapEdgeMotion::Config::SPtr encircle_map_edge_motion_config_;
     RetreatMotion::Config::SPtr retreat_motion_config_;
     RotateMotion::Config::SPtr rotate_motion_config_;
+    MoveForwardMotion::Config::SPtr move_forward_motion_config_;
 
     static const std::string kRetreatDistanceKey_;
     float retreat_distance_;
+    static const std::string kMoveForwardToEscepeCliffDistanceKey_;
+    float move_forward_to_escape_cliff_distance_;
+    static const std::string kMoveForwardToEscepeCliffTimeKey_;
+    float move_forward_to_escape_cliff_time_;
   };
 
   EncircleMapEdgeMovement() = delete;
@@ -57,6 +63,8 @@ class EncircleMapEdgeMovement : public EncircleMovementBase {
     kEncircleMapEdge,
     kTurnForMapEdge,
     kRetreat,
+    kTrunForCliff,
+    kForwardToEscapeFromCliff,
     kFinish,
   };
 
@@ -72,14 +80,23 @@ class EncircleMapEdgeMovement : public EncircleMovementBase {
                             const float& rotate_degree);
   bool SwitchToRetreatMotion(const Chassis::SPtr& chassis,
                              const MapPoint& odom_pose);
-  bool SwitchToEncircleRoomEdgeMotion(const Chassis::SPtr& chassis);
+  bool SwitchToEncircleMapEdgeMotion(const Chassis::SPtr& chassis);
+  bool SwitchToTurnForCliff(const Chassis::SPtr& chassis,
+                            const MapPoint& odom_pose,
+                            const float& rotate_degree);
+  bool SwitchToMoveForwardToEscapeFromCliff(const Chassis::SPtr& chassis,
+                                            const MapPoint& world_pose,
+                                            const float& move_distance,
+                                            const float& move_time);
 
   bool HandleBumper(const Chassis::SPtr& chassis, const MapPoint& world_pose,
                     const NavMap::SPtr& map);
+  bool HandleCliffSensor(const Chassis::SPtr& chassis,
+                         const MapPoint& world_pose, const NavMap::SPtr& map);
 
   bool CheckMapEdgeDistance(const Chassis::SPtr& chassis, const float& radian,
-                            const MapPoint& world_pose,
-                            const NavMap::SPtr& map, float& distance);
+                            const MapPoint& world_pose, const NavMap::SPtr& map,
+                            float& distance);
 
   Config config_;
   Stage stage_;
@@ -89,6 +106,7 @@ class EncircleMapEdgeMovement : public EncircleMovementBase {
   EncircleMapEdgeMotion::SPtr p_encircle_map_edge_motion_;
   RetreatMotion::SPtr p_retreat_motion_;
   RotateMotion::SPtr p_rotate_motion_;
+  MoveForwardMotion::SPtr p_move_forward_motion_;
 };
 
 }  // namespace zima

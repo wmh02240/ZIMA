@@ -34,6 +34,10 @@ class ZimaGazeboNode : public ZimaNode {
   void GazeboGeneralBumperCb(const gazebo_msgs::ContactsState::ConstPtr &msg);
   void GazeboLeftWallSensorCb(const sensor_msgs::LaserScan::ConstPtr &msg);
   void GazeboRightWallSensorCb(const sensor_msgs::LaserScan::ConstPtr &msg);
+  void GazeboLeftCliffSensorCb(const sensor_msgs::LaserScan::ConstPtr &msg);
+  void GazeboLeftFrontCliffSensorCb(const sensor_msgs::LaserScan::ConstPtr &msg);
+  void GazeboRightFrontCliffSensorCb(const sensor_msgs::LaserScan::ConstPtr &msg);
+  void GazeboRightCliffSensorCb(const sensor_msgs::LaserScan::ConstPtr &msg);
 
   bool ProcessData(uint32_t &map_seq,
                    std::shared_ptr<Timer> &process_map_timer) override;
@@ -50,6 +54,10 @@ class ZimaGazeboNode : public ZimaNode {
   ros::Subscriber gazebo_lidar_bumper_subscriber_;
   ros::Subscriber gazebo_left_wall_sensor_subscriber_;
   ros::Subscriber gazebo_right_wall_sensor_subscriber_;
+  ros::Subscriber gazebo_left_cliff_sensor_subscriber_;
+  ros::Subscriber gazebo_left_front_cliff_sensor_subscriber_;
+  ros::Subscriber gazebo_right_front_cliff_sensor_subscriber_;
+  ros::Subscriber gazebo_right_cliff_sensor_subscriber_;
 
   nav_msgs::Odometry::Ptr latest_ground_truth_odom_;
   ReadWriteLock::SPtr receive_msg_list_lock_;

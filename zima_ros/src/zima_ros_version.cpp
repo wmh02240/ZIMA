@@ -12,7 +12,7 @@ namespace zima {
 
 #define ZIMA_ROS_MAJOR_VERSION "0"
 #define ZIMA_ROS_MINOR_VERSION "1"
-#define ZIMA_ROS_PATCH_VERSION "1"
+#define ZIMA_ROS_PATCH_VERSION "2"
 
 std::string GetROSVersionInfo() {
   static std::string version_info;

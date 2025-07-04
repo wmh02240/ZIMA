@@ -56,6 +56,14 @@ void DeviceManager::InitializeButton(
   }
 }
 
+void DeviceManager::InitializeCliffSensor(
+    const std::vector<CliffSensor::SPtr>& cliff_sensors_info) {
+  WriteLocker lock(access_);
+  for (auto&& cliff_sensor_info : cliff_sensors_info) {
+    cliff_sensors_.emplace(cliff_sensor_info->Name(), cliff_sensor_info);
+  }
+}
+
 void DeviceManager::InitializeWheel(
     const std::vector<Wheel::SPtr>& wheels_info) {
   WriteLocker lock(access_);
@@ -124,6 +132,18 @@ Button::SPtr DeviceManager::GetButton(const std::string& name) const {
   return buttons_.at(name);
 }
 
+CliffSensor::SPtr DeviceManager::GetCliffSensor(const std::string& name) const {
+  ReadLocker lock(access_);
+  if (cliff_sensors_.count(name) == 0) {
+    ZERROR << "Cliff sensor " << name << " was not registered.";
+    CliffSensor::Config config(0, 0, 0);
+    static CliffSensor::SPtr null_button(
+        new CliffSensor(CliffSensor::kNullName_, config));
+    return null_button;
+  }
+  return cliff_sensors_.at(name);
+}
+
 Wheel::SPtr DeviceManager::GetWheel(const std::string& name) const {
   ReadLocker lock(access_);
   if (wheels_.count(name) == 0) {
@@ -174,7 +194,7 @@ bool DeviceManager::IsDeviceRegistered(const std::string& name) const {
   if (batteries_.count(name) != 0 || bumpers_.count(name) != 0 ||
       buttons_.count(name) != 0 || wheels_.count(name) != 0 ||
       wall_sensors_.count(name) != 0 || gyros_.count(name) != 0 ||
-      lidars_.count(name) != 0) {
+      lidars_.count(name) != 0 || cliff_sensors_.count(name) != 0) {
     return true;
   }
   return false;

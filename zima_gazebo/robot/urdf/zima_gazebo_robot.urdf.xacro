@@ -205,6 +205,38 @@
       <child link="right_wall_sensor_link" />
     </joint>
 
+    <!-- left cliff sensor --> 
+    <link name="left_cliff_sensor_link"/>
+    <joint name="left_cliff_sensor_joint" type="fixed">
+      <origin xyz="${left_cliff_sensor_x} ${left_cliff_sensor_y} ${left_cliff_sensor_z}" rpy="0 ${left_cliff_sensor_pitch} 0" />
+      <parent link="chassis_link"/>
+      <child link="left_cliff_sensor_link" />
+    </joint>
+
+    <!-- left front cliff sensor --> 
+    <link name="left_front_cliff_sensor_link"/>
+    <joint name="left_front_cliff_sensor_joint" type="fixed">
+      <origin xyz="${left_front_cliff_sensor_x} ${left_front_cliff_sensor_y} ${left_front_cliff_sensor_z}" rpy="0 ${left_front_cliff_sensor_pitch} 0" />
+      <parent link="chassis_link"/>
+      <child link="left_front_cliff_sensor_link" />
+    </joint>
+
+    <!-- right front cliff sensor --> 
+    <link name="right_front_cliff_sensor_link"/>
+    <joint name="right_front_cliff_sensor_joint" type="fixed">
+      <origin xyz="${right_front_cliff_sensor_x} ${right_front_cliff_sensor_y} ${right_front_cliff_sensor_z}" rpy="0 ${right_front_cliff_sensor_pitch} 0" />
+      <parent link="chassis_link"/>
+      <child link="right_front_cliff_sensor_link" />
+    </joint>
+
+    <!-- right cliff sensor --> 
+    <link name="right_cliff_sensor_link"/>
+    <joint name="right_cliff_sensor_joint" type="fixed">
+      <origin xyz="${right_cliff_sensor_x} ${right_cliff_sensor_y} ${right_cliff_sensor_z}" rpy="0 ${right_cliff_sensor_pitch} 0" />
+      <parent link="chassis_link"/>
+      <child link="right_cliff_sensor_link" />
+    </joint>
+
     <xacro:zima_gazebo_robot_sim/>
     <xacro:zima_ros_robot_controller/>
 
