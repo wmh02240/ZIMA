@@ -1,5 +1,5 @@
 // This file should be auto generated, DO NOT MODIFY IT.
 #ifndef ZIMA_BASE_VERSION_HASH_H
 #define ZIMA_BASE_VERSION_HASH_H
-#define ZIMA_BASE_VERSION_HASH ""
+#define ZIMA_BASE_VERSION_HASH "04162f266ea0ec6cd73908a3590a112f332afedb"
 #endif  // ZIMA_BASE_VERSION_HASH_H
