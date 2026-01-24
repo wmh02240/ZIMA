@@ -4,4 +4,6 @@
       output="screen">
   </node>
 
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find zima_ros)/zima.rviz"/>
+
 </launch>
