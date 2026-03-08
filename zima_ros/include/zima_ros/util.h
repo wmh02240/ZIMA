@@ -23,6 +23,8 @@ namespace zima_ros {
 
 using namespace zima;
 
+std::string NormalizeTFFrameId(const std::string& frame_id);
+
 MapPoint OdometryToMapPoint(const nav_msgs::Odometry& odom);
 
 tf2::Transform MapPointToTFTransform(const MapPoint& point);

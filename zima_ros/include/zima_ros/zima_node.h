@@ -135,6 +135,7 @@ class ZimaNode {
   atomic_bool slam_map_received_;
 
   std::shared_ptr<TimedMapPoint> last_recv_odom_point_;
+  ros::Time last_published_odom_time_;
 
   ReadWriteLock::SPtr operation_data_access_;
   OperationData::SPtr operation_data_;
