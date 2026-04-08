@@ -691,10 +691,12 @@ void ZimaNode::PublishOdom() {
     return;
   }
 
-  // ZINFO << "Publish odom " << merged_odom_data->GetPose().DebugString();
-
-  auto odom_ros_tf = MapPointToTFTransform(merged_odom_data->GetPose());
   auto now = ros::Time(merged_odom_data->GetTimeStamp());
+  if (now == last_published_odom_time_) {
+    return;
+  }
+  last_published_odom_time_ = now;
+  auto odom_ros_tf = MapPointToTFTransform(merged_odom_data->GetPose());
   auto &tf_manager = *TransformManager::Instance();
   PublishTf(zima_ros::GeometryTransformToStampedTransform(
       now, tf_manager.kOdomFrame_, tf_manager.kRobotFrame_,
@@ -710,8 +712,10 @@ void ZimaNode::PublishOdom() {
     return;
   }
   odom_msg_template_->header.stamp = now;
-  odom_msg_template_->header.frame_id = tf_manager.kOdomFrame_.substr(1);
-  odom_msg_template_->child_frame_id = tf_manager.kRobotFrame_.substr(1);
+  odom_msg_template_->header.frame_id =
+      zima_ros::NormalizeTFFrameId(tf_manager.kOdomFrame_);
+  odom_msg_template_->child_frame_id =
+      zima_ros::NormalizeTFFrameId(tf_manager.kRobotFrame_);
   odom_msg_template_->pose.pose.position.x = odom_ros_tf.getOrigin().x();
   odom_msg_template_->pose.pose.position.y = odom_ros_tf.getOrigin().y();
   odom_msg_template_->pose.pose.position.z = 0;
@@ -901,7 +905,12 @@ void ZimaNode::PublishLineSegments(const LineSegments &line_segments,
 }
 
 void ZimaNode::PublishTf(const geometry_msgs::TransformStamped &tf) {
-  robot_tf_broadcaster_.sendTransform(tf);
+  auto normalized_tf = tf;
+  normalized_tf.header.frame_id =
+      zima_ros::NormalizeTFFrameId(normalized_tf.header.frame_id);
+  normalized_tf.child_frame_id =
+      zima_ros::NormalizeTFFrameId(normalized_tf.child_frame_id);
+  robot_tf_broadcaster_.sendTransform(normalized_tf);
 }
 
 void ZimaNode::SlamMapCb(const nav_msgs::OccupancyGrid::ConstPtr &msg) {
@@ -1123,11 +1132,15 @@ void ZimaNode::TfThread(const ZimaThreadWrapper::ThreadParam &param) {
     // Subscribe to external transform correction.
     if (!use_simple_slam_) {
       try {
-        listener.waitForTransform(tf_manager.kWorldFrame_,
-                                  tf_manager.kOdomFrame_, ros::Time(0),
+        const auto world_frame =
+            zima_ros::NormalizeTFFrameId(tf_manager.kWorldFrame_);
+        const auto odom_frame =
+            zima_ros::NormalizeTFFrameId(tf_manager.kOdomFrame_);
+        listener.waitForTransform(world_frame,
+                                  odom_frame, ros::Time(0),
                                   ros::Duration(0.2));
-        listener.lookupTransform(tf_manager.kWorldFrame_.substr(1),
-                                 tf_manager.kOdomFrame_.substr(1), ros::Time(0),
+        listener.lookupTransform(world_frame,
+                                 odom_frame, ros::Time(0),
                                  correction);
         // listener.waitForTransform(tf_manager.kWorldFrame_,
         //                           tf_manager.kRobotFrame_,

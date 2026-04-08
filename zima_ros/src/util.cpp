@@ -12,6 +12,18 @@ namespace zima_ros {
 
 using namespace zima;
 
+std::string NormalizeTFFrameId(const std::string& frame_id) {
+  if (frame_id.empty()) {
+    return frame_id;
+  }
+
+  auto normalized = frame_id;
+  while (!normalized.empty() && normalized.front() == '/') {
+    normalized.erase(normalized.begin());
+  }
+  return normalized;
+}
+
 MapPoint OdometryToMapPoint(const nav_msgs::Odometry& odom) {
   tf::Quaternion q;
   tf::quaternionMsgToTF(odom.pose.pose.orientation, q);
@@ -56,8 +68,8 @@ geometry_msgs::TransformStamped GeometryTransformToStampedTransform(
     const string& child_frame_id, const geometry_msgs::Transform& tf) {
   geometry_msgs::TransformStamped transform;
   transform.header.stamp = timestamp;
-  transform.header.frame_id = frame_id;
-  transform.child_frame_id = child_frame_id;
+  transform.header.frame_id = NormalizeTFFrameId(frame_id);
+  transform.child_frame_id = NormalizeTFFrameId(child_frame_id);
   transform.transform = tf;
   return transform;
 }
@@ -122,7 +134,7 @@ nav_msgs::OccupancyGrid SlamValueGridMapToOccupancyGrid(
    * index = x * width + y
    */
   nav_msgs::OccupancyGrid grid;
-  grid.header.frame_id = frame_id;
+  grid.header.frame_id = NormalizeTFFrameId(frame_id);
   ReadLocker lock(map->GetLock());
   auto data_bound_min = map->GetDataBound().GetMin();
   auto data_bound_max = map->GetDataBound().GetMax();
